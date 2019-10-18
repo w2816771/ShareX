@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -145,7 +145,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 allowFileDiscovery = allowFileDiscovery.ToString()
             });
 
-            string response = SendRequest(HttpMethod.POST, url, json, UploadHelpers.ContentTypeJSON, null, GoogleAuth.GetAuthHeaders());
+            string response = SendRequest(HttpMethod.POST, url, json, RequestHelpers.ContentTypeJSON, null, GoogleAuth.GetAuthHeaders());
         }
 
         public List<GoogleDriveFile> GetFolders(bool trashed = false, bool writer = true)
@@ -201,7 +201,7 @@ namespace ShareX.UploadersLib.FileUploaders
             string metadata = GetMetadata(fileName, FolderID);
 
             UploadResult result = SendRequestFile("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,webContentLink", stream, fileName,
-                "file", headers: GoogleAuth.GetAuthHeaders(), contentType: "multipart/related", metadata: metadata);
+                "file", headers: GoogleAuth.GetAuthHeaders(), contentType: "multipart/related", relatedData: metadata);
 
             if (!string.IsNullOrEmpty(result.Response))
             {

@@ -120,9 +120,6 @@
   <data name="btnApplyFilters.Text" xml:space="preserve">
     <value>Áp dụng bộ lọc</value>
   </data>
-  <data name="cbFilenameFilterMethod.Items" xml:space="preserve">
-    <value>Chứa</value>
-  </data>
   <data name="chDateTime.Text" xml:space="preserve">
     <value>Ngày</value>
   </data>
@@ -144,15 +141,6 @@
   <data name="$this.Text" xml:space="preserve">
     <value>ShareX - Lịch sử</value>
   </data>
-  <data name="cbFilenameFilterMethod.Items2" xml:space="preserve">
-    <value>Kết thúc với</value>
-  </data>
-  <data name="cbFilenameFilterMethod.Items1" xml:space="preserve">
-    <value>Bắt đầu với</value>
-  </data>
-  <data name="cbFilenameFilterMethod.Items3" xml:space="preserve">
-    <value>Chính xác</value>
-  </data>
   <data name="cbTypeFilter.Text" xml:space="preserve">
     <value>Kiểu:</value>
   </data>
@@ -170,5 +158,8 @@
   </data>
   <data name="lblURLFilter.Text" xml:space="preserve">
     <value>URL:</value>
+  </data>
+  <data name="btnShowStats.Text" xml:space="preserve">
+    <value>Hiện số liệu</value>
   </data>
 </root>

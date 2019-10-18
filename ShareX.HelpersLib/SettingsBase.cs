@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -38,6 +38,9 @@ namespace ShareX.HelpersLib
         public delegate void SettingsSavedEventHandler(T settings, string filePath, bool result);
         public event SettingsSavedEventHandler SettingsSaved;
 
+        public delegate void SettingsSaveFailedEventHandler(Exception e);
+        public event SettingsSaveFailedEventHandler SettingsSaveFailed;
+
         [Browsable(false), JsonIgnore]
         public string FilePath { get; private set; }
 
@@ -69,6 +72,14 @@ namespace ShareX.HelpersLib
             if (SettingsSaved != null)
             {
                 SettingsSaved((T)this, filePath, result);
+            }
+        }
+
+        protected virtual void OnSettingsSaveFailed(Exception e)
+        {
+            if (SettingsSaveFailed != null)
+            {
+                SettingsSaveFailed(e);
             }
         }
 
@@ -119,7 +130,7 @@ namespace ShareX.HelpersLib
         private bool SaveInternal(string filePath)
         {
             string typeName = GetType().Name;
-            DebugHelper.WriteLine("{0} save started: {1}", typeName, filePath);
+            DebugHelper.WriteLine($"{typeName} save started: {filePath}");
 
             bool isSuccess = false;
 
@@ -137,12 +148,11 @@ namespace ShareX.HelpersLib
                         using (StreamWriter streamWriter = new StreamWriter(fileStream))
                         using (JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
                         {
-                            jsonWriter.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                            jsonWriter.Formatting = Formatting.Indented;
-
                             JsonSerializer serializer = new JsonSerializer();
                             serializer.ContractResolver = new WritablePropertiesOnlyResolver();
                             serializer.Converters.Add(new StringEnumConverter());
+                            serializer.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                            serializer.Formatting = Formatting.Indented;
                             serializer.Serialize(jsonWriter, this);
                             jsonWriter.Flush();
                         }
@@ -171,10 +181,13 @@ namespace ShareX.HelpersLib
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
+
+                OnSettingsSaveFailed(e);
             }
             finally
             {
-                DebugHelper.WriteLine("{0} save {1}: {2}", typeName, isSuccess ? "successful" : "failed", filePath);
+                string status = isSuccess ? "successful" : "failed";
+                DebugHelper.WriteLine($"{typeName} save {status}: {filePath}");
             }
 
             return isSuccess;
@@ -184,60 +197,73 @@ namespace ShareX.HelpersLib
         {
             string typeName = typeof(T).Name;
 
-            if (!string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
-                DebugHelper.WriteLine("{0} load started: {1}", typeName, filePath);
+                DebugHelper.WriteLine($"{typeName} load started: {filePath}");
 
                 try
                 {
-                    if (File.Exists(filePath))
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        if (fileStream.Length > 0)
                         {
-                            if (fileStream.Length > 0)
+                            T settings;
+
+                            using (StreamReader streamReader = new StreamReader(fileStream))
+                            using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
                             {
-                                T settings;
-
-                                using (StreamReader streamReader = new StreamReader(fileStream))
-                                using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
-                                {
-                                    jsonReader.DateTimeZoneHandling = DateTimeZoneHandling.Local;
-
-                                    JsonSerializer serializer = new JsonSerializer();
-                                    serializer.Converters.Add(new StringEnumConverter());
-                                    serializer.ObjectCreationHandling = ObjectCreationHandling.Replace;
-                                    serializer.Error += (sender, e) => e.ErrorContext.Handled = true;
-                                    settings = serializer.Deserialize<T>(jsonReader);
-                                }
-
-                                if (settings == null)
-                                {
-                                    throw new Exception(typeName + " object is null.");
-                                }
-
-                                DebugHelper.WriteLine("{0} load finished: {1}", typeName, filePath);
-
-                                return settings;
+                                JsonSerializer serializer = new JsonSerializer();
+                                serializer.Converters.Add(new StringEnumConverter());
+                                serializer.DateTimeZoneHandling = DateTimeZoneHandling.Local;
+                                serializer.ObjectCreationHandling = ObjectCreationHandling.Replace;
+                                serializer.Error += Serializer_Error;
+                                settings = serializer.Deserialize<T>(jsonReader);
                             }
+
+                            if (settings == null)
+                            {
+                                throw new Exception($"{typeName} object is null.");
+                            }
+
+                            DebugHelper.WriteLine($"{typeName} load finished: {filePath}");
+
+                            return settings;
+                        }
+                        else
+                        {
+                            throw new Exception($"{typeName} file stream length is 0.");
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    DebugHelper.WriteException(e, typeName + " load failed: " + filePath);
-                }
-
-                if (!string.IsNullOrEmpty(backupFolder))
-                {
-                    string fileName = Path.GetFileName(filePath);
-                    string backupFilePath = Path.Combine(backupFolder, fileName);
-                    return LoadInternal(backupFilePath);
+                    DebugHelper.WriteException(e, $"{typeName} load failed: {filePath}");
                 }
             }
+            else
+            {
+                DebugHelper.WriteLine($"{typeName} file does not exist: {filePath}");
+            }
 
-            DebugHelper.WriteLine("{0} not found. Loading new instance.", typeName);
+            if (!string.IsNullOrEmpty(backupFolder))
+            {
+                string fileName = Path.GetFileName(filePath);
+                string backupFilePath = Path.Combine(backupFolder, fileName);
+                return LoadInternal(backupFilePath);
+            }
+
+            DebugHelper.WriteLine($"Loading new {typeName} instance.");
 
             return new T();
+        }
+
+        private static void Serializer_Error(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            // Handle missing enum values
+            if (e.ErrorContext.Error.Message.StartsWith("Error converting value"))
+            {
+                e.ErrorContext.Handled = true;
+            }
         }
     }
 }

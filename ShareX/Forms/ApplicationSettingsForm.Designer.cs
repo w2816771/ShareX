@@ -33,6 +33,7 @@ namespace ShareX
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ApplicationSettingsForm));
             this.tcSettings = new System.Windows.Forms.TabControl();
             this.tpGeneral = new System.Windows.Forms.TabPage();
+            this.cbUseWhiteShareXIcon = new System.Windows.Forms.CheckBox();
             this.btnCheckDevBuild = new System.Windows.Forms.Button();
             this.cbCheckPreReleaseUpdates = new System.Windows.Forms.CheckBox();
             this.cbTrayMiddleClickAction = new System.Windows.Forms.ComboBox();
@@ -51,6 +52,16 @@ namespace ShareX
             this.cbTaskbarProgressEnabled = new System.Windows.Forms.CheckBox();
             this.cbRememberMainFormSize = new System.Windows.Forms.CheckBox();
             this.lblLanguage = new System.Windows.Forms.Label();
+            this.tpTheme = new System.Windows.Forms.TabPage();
+            this.btnThemeReset = new System.Windows.Forms.Button();
+            this.eiTheme = new ShareX.HelpersLib.ExportImportControl();
+            this.btnThemeRemove = new System.Windows.Forms.Button();
+            this.btnThemeAdd = new System.Windows.Forms.Button();
+            this.cbThemes = new System.Windows.Forms.ComboBox();
+            this.cbExperimentalDarkTheme = new System.Windows.Forms.CheckBox();
+            this.btnApplyTheme = new System.Windows.Forms.Button();
+            this.pgTheme = new System.Windows.Forms.PropertyGrid();
+            this.cbUseDarkTheme = new System.Windows.Forms.CheckBox();
             this.tpIntegration = new System.Windows.Forms.TabPage();
             this.gbFirefox = new System.Windows.Forms.GroupBox();
             this.cbFirefoxAddonSupport = new System.Windows.Forms.CheckBox();
@@ -66,7 +77,7 @@ namespace ShareX
             this.cbSendToMenu = new System.Windows.Forms.CheckBox();
             this.cbShellContextMenu = new System.Windows.Forms.CheckBox();
             this.tpPaths = new System.Windows.Forms.TabPage();
-            this.lblNotePersonalFolderPath = new System.Windows.Forms.Label();
+            this.btnPersonalFolderPathApply = new System.Windows.Forms.Button();
             this.btnOpenScreenshotsFolder = new System.Windows.Forms.Button();
             this.lblPreviewPersonalFolderPath = new System.Windows.Forms.Label();
             this.btnBrowsePersonalFolderPath = new System.Windows.Forms.Button();
@@ -101,17 +112,16 @@ namespace ShareX
             this.chDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFormat = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tpUploadRetry = new System.Windows.Forms.TabPage();
-            this.chkUseSecondaryUploaders = new System.Windows.Forms.CheckBox();
-            this.tlpBackupDestinations = new System.Windows.Forms.TableLayoutPanel();
-            this.gbSecondaryImageUploaders = new System.Windows.Forms.GroupBox();
-            this.lvSecondaryImageUploaders = new ShareX.HelpersLib.MyListView();
-            this.chSecondaryImageUploaders = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.gbSecondaryFileUploaders = new System.Windows.Forms.GroupBox();
             this.lvSecondaryFileUploaders = new ShareX.HelpersLib.MyListView();
             this.chSecondaryFileUploaders = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.gbSecondaryImageUploaders = new System.Windows.Forms.GroupBox();
+            this.lvSecondaryImageUploaders = new ShareX.HelpersLib.MyListView();
+            this.chSecondaryImageUploaders = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.gbSecondaryTextUploaders = new System.Windows.Forms.GroupBox();
             this.lvSecondaryTextUploaders = new ShareX.HelpersLib.MyListView();
             this.chSecondaryTextUploaders = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.chkUseSecondaryUploaders = new System.Windows.Forms.CheckBox();
             this.cbIfUploadFailRetryOnce = new System.Windows.Forms.Label();
             this.nudRetryUpload = new System.Windows.Forms.NumericUpDown();
             this.tpHistory = new System.Windows.Forms.TabPage();
@@ -143,8 +153,10 @@ namespace ShareX
             this.tpAdvanced = new System.Windows.Forms.TabPage();
             this.pgSettings = new System.Windows.Forms.PropertyGrid();
             this.tttvMain = new ShareX.HelpersLib.TabToTreeView();
+            this.lblExportImportNote = new System.Windows.Forms.Label();
             this.tcSettings.SuspendLayout();
             this.tpGeneral.SuspendLayout();
+            this.tpTheme.SuspendLayout();
             this.tpIntegration.SuspendLayout();
             this.gbFirefox.SuspendLayout();
             this.gbSteam.SuspendLayout();
@@ -159,9 +171,8 @@ namespace ShareX
             this.tpUploadResults.SuspendLayout();
             this.gbClipboardFormats.SuspendLayout();
             this.tpUploadRetry.SuspendLayout();
-            this.tlpBackupDestinations.SuspendLayout();
-            this.gbSecondaryImageUploaders.SuspendLayout();
             this.gbSecondaryFileUploaders.SuspendLayout();
+            this.gbSecondaryImageUploaders.SuspendLayout();
             this.gbSecondaryTextUploaders.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudRetryUpload)).BeginInit();
             this.tpHistory.SuspendLayout();
@@ -178,6 +189,7 @@ namespace ShareX
             // 
             resources.ApplyResources(this.tcSettings, "tcSettings");
             this.tcSettings.Controls.Add(this.tpGeneral);
+            this.tcSettings.Controls.Add(this.tpTheme);
             this.tcSettings.Controls.Add(this.tpIntegration);
             this.tcSettings.Controls.Add(this.tpPaths);
             this.tcSettings.Controls.Add(this.tpExportImport);
@@ -192,6 +204,7 @@ namespace ShareX
             // tpGeneral
             // 
             this.tpGeneral.BackColor = System.Drawing.SystemColors.Window;
+            this.tpGeneral.Controls.Add(this.cbUseWhiteShareXIcon);
             this.tpGeneral.Controls.Add(this.btnCheckDevBuild);
             this.tpGeneral.Controls.Add(this.cbCheckPreReleaseUpdates);
             this.tpGeneral.Controls.Add(this.cbTrayMiddleClickAction);
@@ -211,6 +224,13 @@ namespace ShareX
             this.tpGeneral.Controls.Add(this.lblLanguage);
             resources.ApplyResources(this.tpGeneral, "tpGeneral");
             this.tpGeneral.Name = "tpGeneral";
+            // 
+            // cbUseWhiteShareXIcon
+            // 
+            resources.ApplyResources(this.cbUseWhiteShareXIcon, "cbUseWhiteShareXIcon");
+            this.cbUseWhiteShareXIcon.Name = "cbUseWhiteShareXIcon";
+            this.cbUseWhiteShareXIcon.UseVisualStyleBackColor = true;
+            this.cbUseWhiteShareXIcon.CheckedChanged += new System.EventHandler(this.CbUseWhiteShareXIcon_CheckedChanged);
             // 
             // btnCheckDevBuild
             // 
@@ -331,6 +351,87 @@ namespace ShareX
             resources.ApplyResources(this.lblLanguage, "lblLanguage");
             this.lblLanguage.Name = "lblLanguage";
             // 
+            // tpTheme
+            // 
+            this.tpTheme.Controls.Add(this.btnThemeReset);
+            this.tpTheme.Controls.Add(this.eiTheme);
+            this.tpTheme.Controls.Add(this.btnThemeRemove);
+            this.tpTheme.Controls.Add(this.btnThemeAdd);
+            this.tpTheme.Controls.Add(this.cbThemes);
+            this.tpTheme.Controls.Add(this.cbExperimentalDarkTheme);
+            this.tpTheme.Controls.Add(this.btnApplyTheme);
+            this.tpTheme.Controls.Add(this.pgTheme);
+            this.tpTheme.Controls.Add(this.cbUseDarkTheme);
+            resources.ApplyResources(this.tpTheme, "tpTheme");
+            this.tpTheme.Name = "tpTheme";
+            this.tpTheme.UseVisualStyleBackColor = true;
+            // 
+            // btnThemeReset
+            // 
+            resources.ApplyResources(this.btnThemeReset, "btnThemeReset");
+            this.btnThemeReset.Name = "btnThemeReset";
+            this.btnThemeReset.UseVisualStyleBackColor = true;
+            this.btnThemeReset.Click += new System.EventHandler(this.BtnThemeReset_Click);
+            // 
+            // eiTheme
+            // 
+            this.eiTheme.DefaultFileName = null;
+            resources.ApplyResources(this.eiTheme, "eiTheme");
+            this.eiTheme.Name = "eiTheme";
+            this.eiTheme.ObjectType = null;
+            this.eiTheme.ExportRequested += new ShareX.HelpersLib.ExportImportControl.ExportEventHandler(this.EiTheme_ExportRequested);
+            this.eiTheme.ImportRequested += new ShareX.HelpersLib.ExportImportControl.ImportEventHandler(this.EiTheme_ImportRequested);
+            // 
+            // btnThemeRemove
+            // 
+            resources.ApplyResources(this.btnThemeRemove, "btnThemeRemove");
+            this.btnThemeRemove.Name = "btnThemeRemove";
+            this.btnThemeRemove.UseVisualStyleBackColor = true;
+            this.btnThemeRemove.Click += new System.EventHandler(this.BtnThemeRemove_Click);
+            // 
+            // btnThemeAdd
+            // 
+            resources.ApplyResources(this.btnThemeAdd, "btnThemeAdd");
+            this.btnThemeAdd.Name = "btnThemeAdd";
+            this.btnThemeAdd.UseVisualStyleBackColor = true;
+            this.btnThemeAdd.Click += new System.EventHandler(this.BtnThemeAdd_Click);
+            // 
+            // cbThemes
+            // 
+            this.cbThemes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbThemes.FormattingEnabled = true;
+            resources.ApplyResources(this.cbThemes, "cbThemes");
+            this.cbThemes.Name = "cbThemes";
+            this.cbThemes.SelectedIndexChanged += new System.EventHandler(this.CbThemes_SelectedIndexChanged);
+            // 
+            // cbExperimentalDarkTheme
+            // 
+            resources.ApplyResources(this.cbExperimentalDarkTheme, "cbExperimentalDarkTheme");
+            this.cbExperimentalDarkTheme.Name = "cbExperimentalDarkTheme";
+            this.cbExperimentalDarkTheme.UseVisualStyleBackColor = true;
+            this.cbExperimentalDarkTheme.CheckedChanged += new System.EventHandler(this.CbExperimentalDarkTheme_CheckedChanged);
+            // 
+            // btnApplyTheme
+            // 
+            resources.ApplyResources(this.btnApplyTheme, "btnApplyTheme");
+            this.btnApplyTheme.Name = "btnApplyTheme";
+            this.btnApplyTheme.UseVisualStyleBackColor = true;
+            this.btnApplyTheme.Click += new System.EventHandler(this.BtnApplyTheme_Click);
+            // 
+            // pgTheme
+            // 
+            resources.ApplyResources(this.pgTheme, "pgTheme");
+            this.pgTheme.Name = "pgTheme";
+            this.pgTheme.PropertySort = System.Windows.Forms.PropertySort.NoSort;
+            this.pgTheme.ToolbarVisible = false;
+            // 
+            // cbUseDarkTheme
+            // 
+            resources.ApplyResources(this.cbUseDarkTheme, "cbUseDarkTheme");
+            this.cbUseDarkTheme.Name = "cbUseDarkTheme";
+            this.cbUseDarkTheme.UseVisualStyleBackColor = true;
+            this.cbUseDarkTheme.CheckedChanged += new System.EventHandler(this.CbUseDarkTheme_CheckedChanged);
+            // 
             // tpIntegration
             // 
             this.tpIntegration.BackColor = System.Drawing.SystemColors.Window;
@@ -440,7 +541,7 @@ namespace ShareX
             // tpPaths
             // 
             this.tpPaths.BackColor = System.Drawing.SystemColors.Window;
-            this.tpPaths.Controls.Add(this.lblNotePersonalFolderPath);
+            this.tpPaths.Controls.Add(this.btnPersonalFolderPathApply);
             this.tpPaths.Controls.Add(this.btnOpenScreenshotsFolder);
             this.tpPaths.Controls.Add(this.lblPreviewPersonalFolderPath);
             this.tpPaths.Controls.Add(this.btnBrowsePersonalFolderPath);
@@ -456,10 +557,12 @@ namespace ShareX
             resources.ApplyResources(this.tpPaths, "tpPaths");
             this.tpPaths.Name = "tpPaths";
             // 
-            // lblNotePersonalFolderPath
+            // btnPersonalFolderPathApply
             // 
-            resources.ApplyResources(this.lblNotePersonalFolderPath, "lblNotePersonalFolderPath");
-            this.lblNotePersonalFolderPath.Name = "lblNotePersonalFolderPath";
+            resources.ApplyResources(this.btnPersonalFolderPathApply, "btnPersonalFolderPathApply");
+            this.btnPersonalFolderPathApply.Name = "btnPersonalFolderPathApply";
+            this.btnPersonalFolderPathApply.UseVisualStyleBackColor = true;
+            this.btnPersonalFolderPathApply.Click += new System.EventHandler(this.btnPersonalFolderPathApply_Click);
             // 
             // btnOpenScreenshotsFolder
             // 
@@ -537,6 +640,7 @@ namespace ShareX
             // tpExportImport
             // 
             this.tpExportImport.BackColor = System.Drawing.SystemColors.Window;
+            this.tpExportImport.Controls.Add(this.lblExportImportNote);
             this.tpExportImport.Controls.Add(this.btnResetSettings);
             this.tpExportImport.Controls.Add(this.pbExportImport);
             this.tpExportImport.Controls.Add(this.btnExport);
@@ -684,6 +788,7 @@ namespace ShareX
             this.chDescription,
             this.chFormat});
             this.lvClipboardFormats.FullRowSelect = true;
+            this.lvClipboardFormats.HideSelection = false;
             this.lvClipboardFormats.Name = "lvClipboardFormats";
             this.lvClipboardFormats.UseCompatibleStateImageBehavior = false;
             this.lvClipboardFormats.View = System.Windows.Forms.View.Details;
@@ -700,27 +805,39 @@ namespace ShareX
             // tpUploadRetry
             // 
             this.tpUploadRetry.BackColor = System.Drawing.SystemColors.Window;
+            this.tpUploadRetry.Controls.Add(this.gbSecondaryFileUploaders);
+            this.tpUploadRetry.Controls.Add(this.gbSecondaryImageUploaders);
+            this.tpUploadRetry.Controls.Add(this.gbSecondaryTextUploaders);
             this.tpUploadRetry.Controls.Add(this.chkUseSecondaryUploaders);
-            this.tpUploadRetry.Controls.Add(this.tlpBackupDestinations);
             this.tpUploadRetry.Controls.Add(this.cbIfUploadFailRetryOnce);
             this.tpUploadRetry.Controls.Add(this.nudRetryUpload);
             resources.ApplyResources(this.tpUploadRetry, "tpUploadRetry");
             this.tpUploadRetry.Name = "tpUploadRetry";
             // 
-            // chkUseSecondaryUploaders
+            // gbSecondaryFileUploaders
             // 
-            resources.ApplyResources(this.chkUseSecondaryUploaders, "chkUseSecondaryUploaders");
-            this.chkUseSecondaryUploaders.Name = "chkUseSecondaryUploaders";
-            this.chkUseSecondaryUploaders.UseVisualStyleBackColor = true;
-            this.chkUseSecondaryUploaders.CheckedChanged += new System.EventHandler(this.chkUseSecondaryUploaders_CheckedChanged);
+            this.gbSecondaryFileUploaders.Controls.Add(this.lvSecondaryFileUploaders);
+            resources.ApplyResources(this.gbSecondaryFileUploaders, "gbSecondaryFileUploaders");
+            this.gbSecondaryFileUploaders.Name = "gbSecondaryFileUploaders";
+            this.gbSecondaryFileUploaders.TabStop = false;
             // 
-            // tlpBackupDestinations
+            // lvSecondaryFileUploaders
             // 
-            resources.ApplyResources(this.tlpBackupDestinations, "tlpBackupDestinations");
-            this.tlpBackupDestinations.Controls.Add(this.gbSecondaryImageUploaders, 0, 0);
-            this.tlpBackupDestinations.Controls.Add(this.gbSecondaryFileUploaders, 2, 0);
-            this.tlpBackupDestinations.Controls.Add(this.gbSecondaryTextUploaders, 1, 0);
-            this.tlpBackupDestinations.Name = "tlpBackupDestinations";
+            this.lvSecondaryFileUploaders.AllowDrop = true;
+            this.lvSecondaryFileUploaders.AllowItemDrag = true;
+            this.lvSecondaryFileUploaders.AutoFillColumn = true;
+            this.lvSecondaryFileUploaders.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lvSecondaryFileUploaders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.chSecondaryFileUploaders});
+            resources.ApplyResources(this.lvSecondaryFileUploaders, "lvSecondaryFileUploaders");
+            this.lvSecondaryFileUploaders.FullRowSelect = true;
+            this.lvSecondaryFileUploaders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvSecondaryFileUploaders.HideSelection = false;
+            this.lvSecondaryFileUploaders.MultiSelect = false;
+            this.lvSecondaryFileUploaders.Name = "lvSecondaryFileUploaders";
+            this.lvSecondaryFileUploaders.UseCompatibleStateImageBehavior = false;
+            this.lvSecondaryFileUploaders.View = System.Windows.Forms.View.Details;
+            this.lvSecondaryFileUploaders.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvSecondaryUploaders_MouseUp);
             // 
             // gbSecondaryImageUploaders
             // 
@@ -747,30 +864,6 @@ namespace ShareX
             this.lvSecondaryImageUploaders.View = System.Windows.Forms.View.Details;
             this.lvSecondaryImageUploaders.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvSecondaryUploaders_MouseUp);
             // 
-            // gbSecondaryFileUploaders
-            // 
-            this.gbSecondaryFileUploaders.Controls.Add(this.lvSecondaryFileUploaders);
-            resources.ApplyResources(this.gbSecondaryFileUploaders, "gbSecondaryFileUploaders");
-            this.gbSecondaryFileUploaders.Name = "gbSecondaryFileUploaders";
-            this.gbSecondaryFileUploaders.TabStop = false;
-            // 
-            // lvSecondaryFileUploaders
-            // 
-            this.lvSecondaryFileUploaders.AllowDrop = true;
-            this.lvSecondaryFileUploaders.AllowItemDrag = true;
-            this.lvSecondaryFileUploaders.AutoFillColumn = true;
-            this.lvSecondaryFileUploaders.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lvSecondaryFileUploaders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chSecondaryFileUploaders});
-            resources.ApplyResources(this.lvSecondaryFileUploaders, "lvSecondaryFileUploaders");
-            this.lvSecondaryFileUploaders.FullRowSelect = true;
-            this.lvSecondaryFileUploaders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.lvSecondaryFileUploaders.MultiSelect = false;
-            this.lvSecondaryFileUploaders.Name = "lvSecondaryFileUploaders";
-            this.lvSecondaryFileUploaders.UseCompatibleStateImageBehavior = false;
-            this.lvSecondaryFileUploaders.View = System.Windows.Forms.View.Details;
-            this.lvSecondaryFileUploaders.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvSecondaryUploaders_MouseUp);
-            // 
             // gbSecondaryTextUploaders
             // 
             this.gbSecondaryTextUploaders.Controls.Add(this.lvSecondaryTextUploaders);
@@ -789,11 +882,19 @@ namespace ShareX
             resources.ApplyResources(this.lvSecondaryTextUploaders, "lvSecondaryTextUploaders");
             this.lvSecondaryTextUploaders.FullRowSelect = true;
             this.lvSecondaryTextUploaders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvSecondaryTextUploaders.HideSelection = false;
             this.lvSecondaryTextUploaders.MultiSelect = false;
             this.lvSecondaryTextUploaders.Name = "lvSecondaryTextUploaders";
             this.lvSecondaryTextUploaders.UseCompatibleStateImageBehavior = false;
             this.lvSecondaryTextUploaders.View = System.Windows.Forms.View.Details;
             this.lvSecondaryTextUploaders.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvSecondaryUploaders_MouseUp);
+            // 
+            // chkUseSecondaryUploaders
+            // 
+            resources.ApplyResources(this.chkUseSecondaryUploaders, "chkUseSecondaryUploaders");
+            this.chkUseSecondaryUploaders.Name = "chkUseSecondaryUploaders";
+            this.chkUseSecondaryUploaders.UseVisualStyleBackColor = true;
+            this.chkUseSecondaryUploaders.CheckedChanged += new System.EventHandler(this.chkUseSecondaryUploaders_CheckedChanged);
             // 
             // cbIfUploadFailRetryOnce
             // 
@@ -1035,6 +1136,11 @@ namespace ShareX
             this.tttvMain.TreeViewSize = 175;
             this.tttvMain.TabChanged += new ShareX.HelpersLib.TabToTreeView.TabChangedEventHandler(this.tttvMain_TabChanged);
             // 
+            // lblExportImportNote
+            // 
+            resources.ApplyResources(this.lblExportImportNote, "lblExportImportNote");
+            this.lblExportImportNote.Name = "lblExportImportNote";
+            // 
             // ApplicationSettingsForm
             // 
             resources.ApplyResources(this, "$this");
@@ -1044,12 +1150,13 @@ namespace ShareX
             this.Controls.Add(this.tttvMain);
             this.Name = "ApplicationSettingsForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SettingsForm_FormClosed);
             this.Shown += new System.EventHandler(this.SettingsForm_Shown);
             this.Resize += new System.EventHandler(this.SettingsForm_Resize);
             this.tcSettings.ResumeLayout(false);
             this.tpGeneral.ResumeLayout(false);
             this.tpGeneral.PerformLayout();
+            this.tpTheme.ResumeLayout(false);
+            this.tpTheme.PerformLayout();
             this.tpIntegration.ResumeLayout(false);
             this.gbFirefox.ResumeLayout(false);
             this.gbFirefox.PerformLayout();
@@ -1071,9 +1178,8 @@ namespace ShareX
             this.gbClipboardFormats.ResumeLayout(false);
             this.tpUploadRetry.ResumeLayout(false);
             this.tpUploadRetry.PerformLayout();
-            this.tlpBackupDestinations.ResumeLayout(false);
-            this.gbSecondaryImageUploaders.ResumeLayout(false);
             this.gbSecondaryFileUploaders.ResumeLayout(false);
+            this.gbSecondaryImageUploaders.ResumeLayout(false);
             this.gbSecondaryTextUploaders.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudRetryUpload)).EndInit();
             this.tpHistory.ResumeLayout(false);
@@ -1148,10 +1254,8 @@ namespace ShareX
         private System.Windows.Forms.Label lblPersonalFolderPath;
         private System.Windows.Forms.TextBox txtPersonalFolderPath;
         private System.Windows.Forms.Button btnOpenScreenshotsFolder;
-        private System.Windows.Forms.Label lblNotePersonalFolderPath;
         private System.Windows.Forms.CheckBox cbSilentRun;
         private System.Windows.Forms.NumericUpDown nudRetryUpload;
-        private System.Windows.Forms.TableLayoutPanel tlpBackupDestinations;
         private System.Windows.Forms.GroupBox gbSecondaryImageUploaders;
         private MyListView lvSecondaryImageUploaders;
         private System.Windows.Forms.GroupBox gbSecondaryFileUploaders;
@@ -1208,5 +1312,18 @@ namespace ShareX
         private System.Windows.Forms.Button btnResetSettings;
         private System.Windows.Forms.CheckBox cbEditWithShareX;
         private System.Windows.Forms.Button btnCheckDevBuild;
+        private System.Windows.Forms.Button btnPersonalFolderPathApply;
+        private System.Windows.Forms.CheckBox cbUseDarkTheme;
+        private System.Windows.Forms.CheckBox cbUseWhiteShareXIcon;
+        private System.Windows.Forms.CheckBox cbExperimentalDarkTheme;
+        private System.Windows.Forms.TabPage tpTheme;
+        private System.Windows.Forms.Button btnApplyTheme;
+        private System.Windows.Forms.PropertyGrid pgTheme;
+        private System.Windows.Forms.ComboBox cbThemes;
+        private System.Windows.Forms.Button btnThemeRemove;
+        private System.Windows.Forms.Button btnThemeAdd;
+        private ExportImportControl eiTheme;
+        private System.Windows.Forms.Button btnThemeReset;
+        private System.Windows.Forms.Label lblExportImportNote;
     }
 }

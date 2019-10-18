@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -35,8 +35,6 @@ namespace ShareX.UploadersLib
         Imgur,
         [Description("ImageShack")]
         ImageShack,
-        [Description("TinyPic")]
-        TinyPic,
         [Description("Flickr")]
         Flickr,
         [Description("Photobucket")]
@@ -66,6 +64,8 @@ namespace ShareX.UploadersLib
         Paste_ee,
         [Description("GitHub Gist")]
         Gist,
+        [Description("Teknik")]
+        Teknik,
         [Description("uPaste")]
         Upaste,
         [Description("Hastebin")]
@@ -123,6 +123,8 @@ namespace ShareX.UploadersLib
         Lambda,
         [Description("VideoBin")]
         VideoBin,
+        [Description("Teknik")]
+        Teknik,
         [Description("Pomf")]
         Pomf,
         [Description("Uguu")]
@@ -165,6 +167,8 @@ namespace ShareX.UploadersLib
         AdFly,
         [Description("qr.net")]
         QRnet,
+        [Description("tknk.io")]
+        Teknik,
         [Description("vurl.com")]
         VURL,
         [Description("2.gp")]
@@ -175,6 +179,8 @@ namespace ShareX.UploadersLib
         FirebaseDynamicLinks,
         [Description("Kutt")]
         Kutt,
+        [Description("Zero Width Shortener")]
+        ZeroWidthShortener,
         CustomURLShortener // Localized
     }
 
@@ -289,20 +295,20 @@ namespace ShareX.UploadersLib
         LocalFilePathUri
     }
 
-    public enum CustomUploaderRequestFormat
+    public enum CustomUploaderBody
     {
-        [Description("None")]
+        [Description("No body")]
         None,
         [Description("Form data (multipart/form-data)")]
         MultipartFormData,
-        [Description("URL query string (example.com?name1=value1)")]
-        URLQueryString,
+        [Description("Form URL encoded (application/x-www-form-urlencoded)")]
+        FormURLEncoded,
         [Description("JSON (application/json)")]
         JSON,
+        [Description("XML (application/xml)")]
+        XML,
         [Description("Binary")]
-        Binary,
-        [Description("Form URL encoded (application/x-www-form-urlencoded)")]
-        FormURLEncoded
+        Binary
     }
 
     [Flags]

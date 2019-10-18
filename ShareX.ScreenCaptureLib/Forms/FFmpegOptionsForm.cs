@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -45,9 +45,10 @@ namespace ShareX.ScreenCaptureLib
 
         public FFmpegOptionsForm(ScreencastOptions options)
         {
-            InitializeComponent();
-            Icon = ShareXResources.Icon;
             Options = options;
+
+            InitializeComponent();
+            ShareXResources.ApplyTheme(this);
 
             eiFFmpeg.ObjectType = typeof(FFmpegOptions);
             cboVideoCodec.Items.AddRange(Helpers.GetEnumDescriptions<FFmpegVideoCodec>());
@@ -58,6 +59,7 @@ namespace ShareX.ScreenCaptureLib
             cbGIFDither.Items.AddRange(Helpers.GetEnumDescriptions<FFmpegPaletteUseDither>());
             cbAMFUsage.Items.AddRange(Helpers.GetEnums<FFmpegAMFUsage>().Select(x => $"{x} ({x.GetDescription()})").ToArray());
             cbAMFQuality.Items.AddRange(Helpers.GetEnums<FFmpegAMFQuality>().Select(x => $"{x} ({x.GetDescription()})").ToArray());
+            cbQSVPreset.Items.AddRange(Helpers.GetEnumDescriptions<FFmpegQSVPreset>());
         }
 
         private async Task SettingsLoad()
@@ -110,6 +112,10 @@ namespace ShareX.ScreenCaptureLib
             // AMF
             cbAMFUsage.SelectedIndex = (int)Options.FFmpeg.AMF_usage;
             cbAMFQuality.SelectedIndex = (int)Options.FFmpeg.AMF_quality;
+
+            // QuickSync
+            nudQSVBitrate.SetValue(Options.FFmpeg.QSV_bitrate);
+            cbQSVPreset.SelectedIndex = (int)Options.FFmpeg.QSV_preset;
 
             // AAC
             tbAACBitrate.Value = Options.FFmpeg.AAC_bitrate / 32;
@@ -231,6 +237,7 @@ namespace ShareX.ScreenCaptureLib
             }
 
             txtFFmpegPath.BackColor = backColor;
+            txtFFmpegPath.ForeColor = SystemColors.ControlText;
 #endif
         }
 
@@ -351,6 +358,10 @@ namespace ShareX.ScreenCaptureLib
                     case FFmpegVideoCodec.hevc_amf:
                         tcFFmpegVideoCodecs.SelectedIndex = 5;
                         break;
+                    case FFmpegVideoCodec.h264_qsv:
+                    case FFmpegVideoCodec.hevc_qsv:
+                        tcFFmpegVideoCodecs.SelectedIndex = 6;
+                        break;
                 }
             }
 
@@ -438,6 +449,18 @@ namespace ShareX.ScreenCaptureLib
         private void cbAMFQuality_SelectedIndexChanged(object sender, EventArgs e)
         {
             Options.FFmpeg.AMF_quality = (FFmpegAMFQuality)cbAMFQuality.SelectedIndex;
+            UpdateUI();
+        }
+
+        private void cbQSVPreset_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Options.FFmpeg.QSV_preset = (FFmpegQSVPreset)cbQSVPreset.SelectedIndex;
+            UpdateUI();
+        }
+
+        private void nudQSVBitrate_ValueChanged(object sender, EventArgs e)
+        {
+            Options.FFmpeg.QSV_bitrate = (int)nudQSVBitrate.Value;
             UpdateUI();
         }
 

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -40,22 +40,45 @@ namespace ShareX.ImageEffectsLib
         [DefaultValue(false)]
         public bool UseGradient { get; set; }
 
+        [DefaultValue(LinearGradientMode.Vertical)]
+        public LinearGradientMode GradientType { get; set; }
+
         [DefaultValue(typeof(Color), "White"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
         public Color Color2 { get; set; }
 
-        [DefaultValue(LinearGradientMode.Vertical)]
-        public LinearGradientMode GradientType { get; set; }
+        [DefaultValue(false)]
+        public bool UseCustomGradient { get; set; }
+
+        [Editor(typeof(GradientEditor), typeof(UITypeEditor))]
+        public GradientInfo Gradient { get; set; }
 
         public DrawBackground()
         {
             this.ApplyDefaultPropertyValues();
+            AddDefaultGradient();
+        }
+
+        private void AddDefaultGradient()
+        {
+            Gradient = new GradientInfo();
+            Gradient.Colors.Add(new GradientStop(Color.FromArgb(68, 120, 194), 0f));
+            Gradient.Colors.Add(new GradientStop(Color.FromArgb(13, 58, 122), 50f));
+            Gradient.Colors.Add(new GradientStop(Color.FromArgb(6, 36, 78), 50f));
+            Gradient.Colors.Add(new GradientStop(Color.FromArgb(23, 89, 174), 100f));
         }
 
         public override Image Apply(Image img)
         {
             if (UseGradient)
             {
-                return ImageHelpers.FillBackground(img, Color, Color2, GradientType);
+                if (UseCustomGradient && Gradient != null && Gradient.IsValid)
+                {
+                    return ImageHelpers.FillBackground(img, Gradient);
+                }
+                else
+                {
+                    return ImageHelpers.FillBackground(img, Color, Color2, GradientType);
+                }
             }
 
             return ImageHelpers.FillBackground(img, Color);

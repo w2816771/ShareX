@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -91,7 +91,7 @@ namespace ShareX.UploadersLib.URLShorteners
         {
             UploadResult result = new UploadResult { URL = url };
 
-            FirebaseRequest request = new FirebaseRequest
+            FirebaseRequest requestOptions = new FirebaseRequest
             {
                 dynamicLinkInfo = new DynamicLinkInfo
                 {
@@ -102,7 +102,7 @@ namespace ShareX.UploadersLib.URLShorteners
 
             if (IsShort)
             {
-                request.suffix = new FirebaseSuffix
+                requestOptions.suffix = new FirebaseSuffix
                 {
                     option = "SHORT"
                 };
@@ -110,11 +110,13 @@ namespace ShareX.UploadersLib.URLShorteners
 
             Dictionary<string, string> args = new Dictionary<string, string>
             {
-                { "key", WebAPIKey }
+                { "key", WebAPIKey },
+                { "fields", "shortLink" }
             };
 
-            string requestjson = JsonConvert.SerializeObject(request);
-            result.Response = SendRequest(HttpMethod.POST, "https://firebasedynamiclinks.googleapis.com/v1/shortLinks", requestjson, UploadHelpers.ContentTypeJSON, args);
+            string serializedRequestOptions = JsonConvert.SerializeObject(requestOptions);
+            result.Response = SendRequest(HttpMethod.POST, "https://firebasedynamiclinks.googleapis.com/v1/shortLinks", serializedRequestOptions, RequestHelpers.ContentTypeJSON, args);
+
             FirebaseResponse firebaseResponse = JsonConvert.DeserializeObject<FirebaseResponse>(result.Response);
 
             if (firebaseResponse != null)

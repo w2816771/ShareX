@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using ShareX.HelpersLib.Properties;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace ShareX.HelpersLib
 {
@@ -60,6 +62,8 @@ namespace ShareX.HelpersLib
         public const string Alphanumeric = Numbers + AlphabetCapital + Alphabet;
         public const string AlphanumericInverse = Numbers + Alphabet + AlphabetCapital;
         public const string Hexadecimal = Numbers + "ABCDEF";
+        public const string Base58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // https://en.wikipedia.org/wiki/Base58
+        public const string Base56 = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz"; // A variant, Base56, excludes 1 (one) and o (lowercase o) compared to Base 58.
 
         public static readonly string[] ImageFileExtensions = new string[] { "jpg", "jpeg", "png", "gif", "bmp", "ico", "tif", "tiff" };
         public static readonly string[] TextFileExtensions = new string[] { "txt", "log", "nfo", "c", "cpp", "cc", "cxx", "h", "hpp", "hxx", "cs", "vb", "html", "htm", "xhtml", "xht", "xml", "css", "js", "php", "bat", "java", "lua", "py", "pl", "cfg", "ini", "dart", "go", "gohtml" };
@@ -88,20 +92,44 @@ namespace ShareX.HelpersLib
             }
         }
 
-        /// <summary>Get file name extension without dot.</summary>
-        public static string GetFilenameExtension(string filePath)
+        public static string GetFilenameExtension(string filePath, bool includeDot = false, bool checkSecondExtension = true)
         {
+            string extension = "";
+
             if (!string.IsNullOrEmpty(filePath))
             {
                 int pos = filePath.LastIndexOf('.');
 
                 if (pos >= 0)
                 {
-                    return filePath.Substring(pos + 1);
+                    extension = filePath.Substring(pos + 1);
+
+                    if (checkSecondExtension)
+                    {
+                        filePath = filePath.Remove(pos);
+                        string extension2 = GetFilenameExtension(filePath, false, false);
+
+                        if (!string.IsNullOrEmpty(extension2))
+                        {
+                            foreach (string knownExtension in new string[] { "tar" })
+                            {
+                                if (extension2.Equals(knownExtension, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    extension = extension2 + "." + extension;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (includeDot)
+                    {
+                        extension = "." + extension;
+                    }
                 }
             }
 
-            return null;
+            return extension;
         }
 
         public static string GetFilenameSafe(string filePath)
@@ -180,7 +208,7 @@ namespace ShareX.HelpersLib
 
             if (!string.IsNullOrEmpty(ext))
             {
-                return extensions.Any(x => ext.Equals(x, StringComparison.InvariantCultureIgnoreCase));
+                return extensions.Any(x => ext.Equals(x, StringComparison.OrdinalIgnoreCase));
             }
 
             return false;
@@ -297,13 +325,18 @@ namespace ShareX.HelpersLib
         public static string GetValidFileName(string fileName, string separator = "")
         {
             char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
+
             if (string.IsNullOrEmpty(separator))
             {
                 return new string(fileName.Where(c => !invalidFileNameChars.Contains(c)).ToArray());
             }
             else
             {
-                invalidFileNameChars.ForEach(x => fileName = fileName.Replace(x.ToString(), separator));
+                foreach (char invalidFileNameChar in invalidFileNameChars)
+                {
+                    fileName = fileName.Replace(invalidFileNameChar.ToString(), separator);
+                }
+
                 return fileName.Trim().Replace(separator + separator, separator);
             }
         }
@@ -591,9 +624,9 @@ namespace ShareX.HelpersLib
             return (OSVersion.Major == 6 && OSVersion.Minor >= 2) || OSVersion.Major > 6;
         }
 
-        public static bool IsWindows10OrGreater()
+        public static bool IsWindows10OrGreater(int build = -1)
         {
-            return OSVersion.Major >= 10;
+            return OSVersion.Major >= 10 && OSVersion.Build >= build;
         }
 
         public static bool IsDefaultInstallDir()
@@ -702,6 +735,11 @@ namespace ShareX.HelpersLib
                 {
                     string path = tb.Text;
 
+                    if (detectSpecialFolders)
+                    {
+                        path = ExpandFolderVariables(path);
+                    }
+
                     if (!string.IsNullOrEmpty(path))
                     {
                         path = Path.GetDirectoryName(path);
@@ -722,7 +760,15 @@ namespace ShareX.HelpersLib
 
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    tb.Text = detectSpecialFolders ? GetVariableFolderPath(ofd.FileName) : ofd.FileName;
+                    string fileName = ofd.FileName;
+
+                    if (detectSpecialFolders)
+                    {
+                        fileName = GetVariableFolderPath(fileName);
+                    }
+
+                    tb.Text = fileName;
+
                     return true;
                 }
             }
@@ -768,7 +814,10 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    GetEnums<Environment.SpecialFolder>().ForEach(x => path = path.Replace(Environment.GetFolderPath(x), $"%{x}%", StringComparison.InvariantCultureIgnoreCase));
+                    foreach (Environment.SpecialFolder specialFolder in GetEnums<Environment.SpecialFolder>())
+                    {
+                        path = path.Replace(Environment.GetFolderPath(specialFolder), $"%{specialFolder}%", StringComparison.OrdinalIgnoreCase);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -785,7 +834,11 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    GetEnums<Environment.SpecialFolder>().ForEach(x => path = path.Replace($"%{x}%", Environment.GetFolderPath(x), StringComparison.InvariantCultureIgnoreCase));
+                    foreach (Environment.SpecialFolder specialFolder in GetEnums<Environment.SpecialFolder>())
+                    {
+                        path = path.Replace($"%{specialFolder}%", Environment.GetFolderPath(specialFolder), StringComparison.OrdinalIgnoreCase);
+                    }
+
                     path = Environment.ExpandEnvironmentVariables(path);
                 }
                 catch (Exception e)
@@ -795,6 +848,18 @@ namespace ShareX.HelpersLib
             }
 
             return path;
+        }
+
+        public static string OutputSpecialFolders()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (Environment.SpecialFolder specialFolder in GetEnums<Environment.SpecialFolder>())
+            {
+                sb.AppendLine(string.Format("{0,-25}{1}", specialFolder, Environment.GetFolderPath(specialFolder)));
+            }
+
+            return sb.ToString();
         }
 
         public static bool WaitWhile(Func<bool> check, int interval, int timeout = -1)
@@ -1362,6 +1427,55 @@ namespace ShareX.HelpersLib
             {
                 // If it fails, we'll just have to live with the old hand.
                 return false;
+            }
+        }
+
+        public static bool IsTabletMode()
+        {
+            //int state = NativeMethods.GetSystemMetrics(SystemMetric.SM_CONVERTIBLESLATEMODE);
+            //return state == 0;
+
+            try
+            {
+                int result = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell", "TabletMode", 0);
+                return result > 0;
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public static string JSONFormat(string json, Newtonsoft.Json.Formatting formatting)
+        {
+            return JToken.Parse(json).ToString(formatting);
+        }
+
+        public static string XMLFormat(string xml)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.Unicode))
+            {
+                // Load the XmlDocument with the XML.
+                XmlDocument document = new XmlDocument();
+                document.LoadXml(xml);
+
+                writer.Formatting = System.Xml.Formatting.Indented;
+
+                // Write the XML into a formatting XmlTextWriter
+                document.WriteContentTo(writer);
+                writer.Flush();
+                ms.Flush();
+
+                // Have to rewind the MemoryStream in order to read its contents.
+                ms.Position = 0;
+
+                // Read MemoryStream contents into a StreamReader.
+                StreamReader sReader = new StreamReader(ms);
+
+                // Extract the text from the StreamReader.
+                return sReader.ReadToEnd();
             }
         }
     }

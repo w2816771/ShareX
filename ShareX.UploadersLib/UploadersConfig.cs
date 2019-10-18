@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -56,15 +56,6 @@ namespace ShareX.UploadersLib
 
         #endregion ImageShack
 
-        #region TinyPic
-
-        public AccountType TinyPicAccountType = AccountType.Anonymous;
-        public string TinyPicRegistrationCode = "";
-        public string TinyPicUsername = "";
-        public string TinyPicPassword = "";
-
-        #endregion TinyPic
-
         #region Flickr
 
         public OAuthInfo FlickrOAuthInfo = null;
@@ -81,14 +72,15 @@ namespace ShareX.UploadersLib
 
         #region Google Photos
 
-        public OAuth2Info PicasaOAuth2Info = null;
-        public string PicasaAlbumID = "";
+        public OAuth2Info GooglePhotosOAuth2Info = null;
+        public string GooglePhotosAlbumID = "";
+        public bool GooglePhotosIsPublic = false;
 
         #endregion Google Photos
 
         #region Chevereto
 
-        public CheveretoUploader CheveretoUploader = new CheveretoUploader("http://ultraimg.com/api/1/upload", "3374fa58c672fcaad8dab979f7687397");
+        public CheveretoUploader CheveretoUploader = new CheveretoUploader();
         public bool CheveretoDirectURL = true;
 
         #endregion Chevereto
@@ -191,6 +183,7 @@ namespace ShareX.UploadersLib
         public OAuth2Info GfycatOAuth2Info = null;
         public AccountType GfycatAccountType = AccountType.Anonymous;
         public bool GfycatIsPublic = false;
+        public bool GfycatKeepAudio = true;
 
         #endregion Gfycat
 
@@ -330,9 +323,23 @@ namespace ShareX.UploadersLib
 
         #endregion Lithiio
 
+        #region Teknik
+
+        public OAuth2Info TeknikOAuth2Info = null;
+        public string TeknikUploadAPIUrl = Teknik.DefaultUploadAPIURL;
+        public string TeknikPasteAPIUrl = Teknik.DefaultPasteAPIURL;
+        public string TeknikUrlShortenerAPIUrl = Teknik.DefaultUrlShortenerAPIURL;
+        public string TeknikAuthUrl = Teknik.DefaultAuthURL;
+        public TeknikExpirationUnit TeknikExpirationUnit = TeknikExpirationUnit.Never;
+        public int TeknikExpirationLength = 1;
+        public bool TeknikEncryption = false;
+        public bool TeknikGenerateDeletionKey = false;
+
+        #endregion Teknik
+
         #region Pomf
 
-        public PomfUploader PomfUploader = new PomfUploader("https://mixtape.moe/upload.php");
+        public PomfUploader PomfUploader = new PomfUploader();
 
         #endregion Pomf
 
@@ -384,9 +391,9 @@ namespace ShareX.UploadersLib
         public string B2ApplicationKeyId = "";
         public string B2ApplicationKey = "";
         public string B2BucketName = "";
-        public string B2UploadPath = "ShareX/%y/%mo/";
+        public string B2UploadPath = "ShareX/%y/%mo";
         public bool B2UseCustomUrl = false;
-        public string B2CustomUrl = "https://example.com/";
+        public string B2CustomUrl = "https://example.com";
 
         #endregion Backblaze B2
 
@@ -413,6 +420,7 @@ namespace ShareX.UploadersLib
         public bool GoogleCloudStorageRemoveExtensionImage = false;
         public bool GoogleCloudStorageRemoveExtensionVideo = false;
         public bool GoogleCloudStorageRemoveExtensionText = false;
+        public bool GoogleCloudStorageSetPublicACL = true;
 
         #endregion Google Cloud Storage
 

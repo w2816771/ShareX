@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -63,6 +63,8 @@ namespace ShareX
         Korean,
         [Description("Español mexicano (Mexican Spanish)")]
         MexicanSpanish,
+        [Description("فارسی (Persian)")]
+        Persian,
         [Description("Português-Brasil (Portuguese-Brazil)")]
         PortugueseBrazil,
         [Description("Русский (Russian)")]
@@ -210,7 +212,6 @@ namespace ShareX
         IndexFolder,
         ImageCombiner,
         VideoThumbnailer,
-        FTPClient,
         TweetMessage,
         MonitorTest,
         // Other
@@ -269,6 +270,11 @@ namespace ShareX
         Side, Bottom
     }
 
+    public enum ThumbnailTitleLocation
+    {
+        Top, Bottom
+    }
+
     public enum ScreenRecordState
     {
         Waiting, BeforeStart, AfterStart, AfterRecordingStart, Encoding
@@ -298,4 +304,17 @@ namespace ShareX
         EnabledByPolicy = StartupTaskState.EnabledByPolicy
     }
 #endif
+
+    public enum BalloonTipClickAction
+    {
+        None,
+        OpenURL,
+        OpenDebugLog
+    }
+
+    public enum TaskViewMode
+    {
+        ListView,
+        ThumbnailView
+    }
 }

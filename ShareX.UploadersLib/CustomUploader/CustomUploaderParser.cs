@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 
 #endregion License Information (GPL v3)
 
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShareX.HelpersLib;
 using System;
@@ -46,11 +45,13 @@ namespace ShareX.UploadersLib
         public bool IsOutput { get; set; }
         public string Filename { get; set; }
         public string Input { get; set; }
-        public string Response { get; set; }
+        public ResponseInfo ResponseInfo { get; set; }
         public List<Match> RegexMatches { get; set; }
         public bool URLEncode { get; set; } // Only URL encodes filename and input
         public bool JSONEncode { get; set; }
+        public bool XMLEncode { get; set; }
         public bool UseNameParser { get; set; }
+        public NameParserType NameParserType { get; set; } = NameParserType.Text;
 
         public bool SkipSyntaxParse { get; set; }
         public List<CustomUploaderSyntaxInfo> SyntaxInfoList { get; private set; }
@@ -68,9 +69,9 @@ namespace ShareX.UploadersLib
             IsOutput = false;
         }
 
-        public CustomUploaderParser(string response, List<string> regexList)
+        public CustomUploaderParser(ResponseInfo responseInfo, List<string> regexList)
         {
-            Response = response;
+            ResponseInfo = responseInfo;
 
             RegexMatches = new List<Match>();
 
@@ -78,7 +79,7 @@ namespace ShareX.UploadersLib
             {
                 foreach (string regex in regexList)
                 {
-                    Match match = Regex.Match(response, regex);
+                    Match match = Regex.Match(ResponseInfo.ResponseText, regex);
                     RegexMatches.Add(match);
                 }
             }
@@ -104,7 +105,7 @@ namespace ShareX.UploadersLib
 
             if (UseNameParser)
             {
-                NameParser nameParser = new NameParser(NameParserType.Text);
+                NameParser nameParser = new NameParser(NameParserType);
                 EscapeHelper escapeHelper = new EscapeHelper();
                 escapeHelper.KeepEscapeCharacter = true;
                 text = escapeHelper.Parse(text, nameParser.Parse);
@@ -142,6 +143,10 @@ namespace ShareX.UploadersLib
                                 if (JSONEncode)
                                 {
                                     syntaxResult = URLHelpers.JSONEncode(syntaxResult);
+                                }
+                                else if (XMLEncode)
+                                {
+                                    syntaxResult = URLHelpers.XMLEncode(syntaxResult);
                                 }
 
                                 sbResult.Append(syntaxResult);
@@ -195,7 +200,15 @@ namespace ShareX.UploadersLib
             {
                 if (CheckKeyword(syntax, "response")) // Example: $response$
                 {
-                    return Response;
+                    return ResponseInfo.ResponseText;
+                }
+                else if (CheckKeyword(syntax, "responseurl")) // Example: $responseurl$
+                {
+                    return ResponseInfo.ResponseURL;
+                }
+                else if (CheckKeyword(syntax, "header", out value)) // Example: $header:Location$
+                {
+                    return ParseSyntaxHeader(value);
                 }
                 else if (CheckKeyword(syntax, "regex", out value)) // Examples: $regex:1$ $regex:1|1$ $regex:1|thumbnail$
                 {
@@ -275,6 +288,16 @@ namespace ShareX.UploadersLib
             return false;
         }
 
+        private string ParseSyntaxHeader(string header)
+        {
+            if (ResponseInfo.Headers != null)
+            {
+                return ResponseInfo.Headers[header];
+            }
+
+            return null;
+        }
+
         private string ParseSyntaxRegex(string syntax)
         {
             if (!string.IsNullOrEmpty(syntax))
@@ -328,7 +351,12 @@ namespace ShareX.UploadersLib
         {
             if (!string.IsNullOrEmpty(syntaxJsonPath))
             {
-                return (string)JToken.Parse(Response).SelectToken("$." + syntaxJsonPath);
+                if (!syntaxJsonPath.StartsWith("$."))
+                {
+                    syntaxJsonPath = "$." + syntaxJsonPath;
+                }
+
+                return (string)JToken.Parse(ResponseInfo.ResponseText).SelectToken(syntaxJsonPath);
             }
 
             return null;
@@ -340,7 +368,7 @@ namespace ShareX.UploadersLib
         {
             if (!string.IsNullOrEmpty(syntaxXPath))
             {
-                using (StringReader sr = new StringReader(Response))
+                using (StringReader sr = new StringReader(ResponseInfo.ResponseText))
                 {
                     XPathDocument doc = new XPathDocument(sr);
                     XPathNavigator nav = doc.CreateNavigator();

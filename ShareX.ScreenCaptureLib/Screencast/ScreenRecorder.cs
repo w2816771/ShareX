@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ using ShareX.HelpersLib;
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Threading;
 
 namespace ShareX.ScreenCaptureLib
@@ -233,16 +232,13 @@ namespace ShareX.ScreenCaptureLib
         public bool FFmpegEncodeVideo(string input, string output)
         {
             Helpers.CreateDirectoryFromFilePath(output);
-            bool result = ffmpegCli.EncodeVideo(input, output);
-            //DebugHelper.WriteLine("Video encoding result:\nInput file size: {0}\nOutput file size: {1}", new FileInfo(input).Length.ToSizeString(), new FileInfo(output).Length.ToSizeString());
-            return result;
+            return ffmpegCli.EncodeVideo(input, output);
         }
 
-        public bool FFmpegEncodeAsGIF(string sourceFilePath, string targetFilePath, string tempFolder)
+        public bool FFmpegEncodeAsGIF(string input, string output)
         {
-            Helpers.CreateDirectoryFromFilePath(targetFilePath);
-            Helpers.CreateDirectoryFromDirectoryPath(tempFolder);
-            return ffmpegCli.EncodeGIF(sourceFilePath, targetFilePath, tempFolder);
+            Helpers.CreateDirectoryFromFilePath(output);
+            return ffmpegCli.EncodeGIF(input, output);
         }
 
         protected void OnRecordingStarted()

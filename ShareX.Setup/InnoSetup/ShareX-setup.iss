@@ -11,7 +11,7 @@
 #define MyAppId "82E6AC09-0FEF-4390-AD9F-0DD3F5561EFC"
 
 [Setup]
-AppCopyright=Copyright (c) 2007-2018 {#MyAppPublisher}
+AppCopyright=Copyright (c) 2007-2019 {#MyAppPublisher}
 AppId={#MyAppId}
 AppMutex={#MyAppId}
 AppName={#MyAppName}
@@ -66,6 +66,7 @@ Source: "{#MyAppRootDirectory}\ShareX.NativeMessagingHost\bin\Release\ShareX_Nat
 Source: "{#MyAppReleaseDirectory}\de\*.resources.dll"; DestDir: {app}\Languages\de; Flags: ignoreversion
 Source: "{#MyAppReleaseDirectory}\es\*.resources.dll"; DestDir: {app}\Languages\es; Flags: ignoreversion
 Source: "{#MyAppReleaseDirectory}\es-MX\*.resources.dll"; DestDir: {app}\Languages\es-MX; Flags: ignoreversion
+Source: "{#MyAppReleaseDirectory}\fa-IR\*.resources.dll"; DestDir: {app}\Languages\fa-IR; Flags: ignoreversion
 Source: "{#MyAppReleaseDirectory}\fr\*.resources.dll"; DestDir: {app}\Languages\fr; Flags: ignoreversion
 Source: "{#MyAppReleaseDirectory}\hu\*.resources.dll"; DestDir: {app}\Languages\hu; Flags: ignoreversion
 Source: "{#MyAppReleaseDirectory}\id-ID\*.resources.dll"; DestDir: {app}\Languages\id-ID; Flags: ignoreversion

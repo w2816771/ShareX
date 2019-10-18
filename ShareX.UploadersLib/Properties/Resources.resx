@@ -248,12 +248,6 @@ Created folders:</value>
   <data name="UploadersConfigForm_FTPOpenClient_Unable_to_find_valid_FTP_account_" xml:space="preserve">
     <value>Unable to find valid FTP account.</value>
   </data>
-  <data name="FTPClientForm_FTPCreateDirectory_Directory_name_to_create" xml:space="preserve">
-    <value>Directory name to create</value>
-  </data>
-  <data name="FTPClientForm_FTPClientForm_ShareX_FTP_client" xml:space="preserve">
-    <value>ShareX FTP client</value>
-  </data>
   <data name="SendSpace" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Favicons\SendSpace.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -262,12 +256,6 @@ Created folders:</value>
   </data>
   <data name="Polr" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Favicons\Polr.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="TinyPic" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Favicons\TinyPic.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FTPClientForm_FTPClientForm_Connecting_to__0_" xml:space="preserve">
-    <value>Connecting to {0}</value>
   </data>
   <data name="UploadersConfigForm_oAuthJira_RefreshButtonClicked_Refresh_authorization_is_not_supported_" xml:space="preserve">
     <value>Refresh authorization is not supported.</value>
@@ -279,10 +267,7 @@ Created folders:</value>
     <value>..\Favicons\Pomf.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Lithiio" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Favicons\Lithiio.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="UploadersConfigForm_FTPOpenClient_FTP_client_only_supports_FTP_or_FTPS_" xml:space="preserve">
-    <value>FTP client only supports FTP or FTPS.</value>
+    <value>..\Favicons\Lithiio.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="UploadersConfigForm_MegaConfigureTab_Configured" xml:space="preserve">
     <value>Configured</value>
@@ -356,12 +341,6 @@ Created folders:</value>
   <data name="OAuthControl_OAuthControl_PasteVerificationCodeHere" xml:space="preserve">
     <value>Paste verification code here</value>
   </data>
-  <data name="UploadersConfigForm_An_argument_with_the_same_name_already_exists" xml:space="preserve">
-    <value>An argument with the same name already exists.</value>
-  </data>
-  <data name="UploadersConfigForm_A_header_with_the_same_name_already_exists" xml:space="preserve">
-    <value>A header with the same name already exists.</value>
-  </data>
   <data name="GooglePhotos" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Favicons\GooglePhotos.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -415,5 +394,11 @@ Created folders:</value>
   </data>
   <data name="Dropbox" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Favicons\Dropbox.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Teknik" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Favicons\Teknik.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DuplicateNameNotAllowed" xml:space="preserve">
+    <value>Duplicate name not allowed.</value>
   </data>
 </root>

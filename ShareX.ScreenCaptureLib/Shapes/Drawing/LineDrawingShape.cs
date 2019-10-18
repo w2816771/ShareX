@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -40,7 +41,7 @@ namespace ShareX.ScreenCaptureLib
         public bool CenterNodeActive { get; private set; }
         public int CenterPointCount { get; private set; }
 
-        public override bool IsValidShape => Rectangle.Width > 1 || Rectangle.Height > 1;
+        public override bool IsValidShape => Rectangle.Width >= Options.MinimumSize || Rectangle.Height >= Options.MinimumSize;
 
         protected override void UseLightResizeNodes()
         {
@@ -77,7 +78,7 @@ namespace ShareX.ScreenCaptureLib
             base.OnConfigLoad();
 
             int previousCenterPointCount = CenterPointCount;
-            CenterPointCount = AnnotationOptions.LineCenterPointCount.Between(0, MaximumCenterPointCount);
+            CenterPointCount = AnnotationOptions.LineCenterPointCount.Clamp(0, MaximumCenterPointCount);
 
             if (CenterPointCount != previousCenterPointCount)
             {
@@ -136,6 +137,8 @@ namespace ShareX.ScreenCaptureLib
 
         protected void DrawLine(Graphics g)
         {
+            int borderSize = Math.Max(BorderSize, 1);
+
             if (Shadow)
             {
                 Point[] shadowPoints = new Point[Points.Length];
@@ -145,10 +148,10 @@ namespace ShareX.ScreenCaptureLib
                     shadowPoints[i] = Points[i].Add(ShadowOffset);
                 }
 
-                DrawLine(g, ShadowColor, BorderSize, shadowPoints);
+                DrawLine(g, ShadowColor, borderSize, shadowPoints);
             }
 
-            DrawLine(g, BorderColor, BorderSize, Points);
+            DrawLine(g, BorderColor, borderSize, Points);
         }
 
         protected void DrawLine(Graphics g, Color borderColor, int borderSize, Point[] points)

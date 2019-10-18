@@ -31,12 +31,14 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HistoryForm));
             this.scMain = new ShareX.HelpersLib.SplitContainerCustomSplitter();
+            this.pStats = new System.Windows.Forms.Panel();
+            this.rtbStats = new System.Windows.Forms.RichTextBox();
             this.lvHistory = new ShareX.HelpersLib.MyListView();
             this.chIcon = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chDateTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chFilename = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chURL = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.btnShowStats = new System.Windows.Forms.Button();
             this.pbThumbnail = new ShareX.HelpersLib.MyPictureBox();
             this.gbFilters = new System.Windows.Forms.GroupBox();
             this.lblURLFilter = new System.Windows.Forms.Label();
@@ -58,7 +60,7 @@
             this.scMain.Panel1.SuspendLayout();
             this.scMain.Panel2.SuspendLayout();
             this.scMain.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.pStats.SuspendLayout();
             this.gbFilters.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,12 +72,29 @@
             // 
             // scMain.Panel1
             // 
+            this.scMain.Panel1.Controls.Add(this.pStats);
             this.scMain.Panel1.Controls.Add(this.lvHistory);
             // 
             // scMain.Panel2
             // 
-            this.scMain.Panel2.Controls.Add(this.panel1);
+            this.scMain.Panel2.Controls.Add(this.btnShowStats);
+            this.scMain.Panel2.Controls.Add(this.pbThumbnail);
+            this.scMain.Panel2.Controls.Add(this.gbFilters);
+            this.scMain.SplitterColor = System.Drawing.Color.White;
+            this.scMain.SplitterLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(189)))), ((int)(((byte)(189)))));
             this.scMain.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.scMain_SplitterMoved);
+            // 
+            // pStats
+            // 
+            this.pStats.Controls.Add(this.rtbStats);
+            resources.ApplyResources(this.pStats, "pStats");
+            this.pStats.Name = "pStats";
+            // 
+            // rtbStats
+            // 
+            this.rtbStats.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            resources.ApplyResources(this.rtbStats, "rtbStats");
+            this.rtbStats.Name = "rtbStats";
             // 
             // lvHistory
             // 
@@ -97,7 +116,6 @@
             this.lvHistory.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.lvHistory_ItemSelectionChanged);
             this.lvHistory.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lvHistory_KeyDown);
             this.lvHistory.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvHistory_MouseDoubleClick);
-            this.lvHistory.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvHistory_MouseUp);
             // 
             // chIcon
             // 
@@ -115,12 +133,12 @@
             // 
             resources.ApplyResources(this.chURL, "chURL");
             // 
-            // panel1
+            // btnShowStats
             // 
-            this.panel1.Controls.Add(this.pbThumbnail);
-            this.panel1.Controls.Add(this.gbFilters);
-            resources.ApplyResources(this.panel1, "panel1");
-            this.panel1.Name = "panel1";
+            resources.ApplyResources(this.btnShowStats, "btnShowStats");
+            this.btnShowStats.Name = "btnShowStats";
+            this.btnShowStats.UseVisualStyleBackColor = true;
+            this.btnShowStats.Click += new System.EventHandler(this.BtnShowStats_Click);
             // 
             // pbThumbnail
             // 
@@ -130,6 +148,7 @@
             this.pbThumbnail.DrawCheckeredBackground = true;
             this.pbThumbnail.FullscreenOnClick = true;
             this.pbThumbnail.Name = "pbThumbnail";
+            this.pbThumbnail.PictureBoxBackColor = System.Drawing.SystemColors.Control;
             this.pbThumbnail.ShowImageSizeLabel = true;
             // 
             // gbFilters
@@ -253,7 +272,7 @@
             this.scMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.scMain)).EndInit();
             this.scMain.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
+            this.pStats.ResumeLayout(false);
             this.gbFilters.ResumeLayout(false);
             this.gbFilters.PerformLayout();
             this.ResumeLayout(false);
@@ -268,7 +287,6 @@
         private System.Windows.Forms.ColumnHeader chURL;
         private System.Windows.Forms.ColumnHeader chIcon;
         private ShareX.HelpersLib.SplitContainerCustomSplitter scMain;
-        private System.Windows.Forms.Panel panel1;
         private HelpersLib.MyPictureBox pbThumbnail;
         private System.Windows.Forms.GroupBox gbFilters;
         private System.Windows.Forms.ComboBox cbHostFilterSelection;
@@ -286,5 +304,8 @@
         private System.Windows.Forms.Label lblFilenameFilter;
         private System.Windows.Forms.Label lblURLFilter;
         private System.Windows.Forms.TextBox txtURLFilter;
+        private System.Windows.Forms.Button btnShowStats;
+        private System.Windows.Forms.RichTextBox rtbStats;
+        private System.Windows.Forms.Panel pStats;
     }
 }

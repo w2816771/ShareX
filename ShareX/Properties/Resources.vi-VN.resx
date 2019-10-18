@@ -195,9 +195,6 @@ Bạn có muốn tự động tải nó xuống không?</value>
   <data name="MainForm_UpdateWorkflowsMenu_You_can_add_workflows_from_hotkey_settings___" xml:space="preserve">
     <value>Bạn có thể thêm các luồng công việc từ thiết lập phím tắt</value>
   </data>
-  <data name="TaskHelpers_OpenFTPClient_FTP_client_only_supports_FTP_or_FTPS_" xml:space="preserve">
-    <value>Trình FTP chỉ hỗ trợ giao thức FTP hoặc FTPS.</value>
-  </data>
   <data name="ApplicationSettingsForm_cbLanguage_SelectedIndexChanged_Language_Restart" xml:space="preserve">
     <value>ShareX cần được khởi động lại để thay đổi ngôn ngữ có tác dụng.
 Bạn có muốn khởi động lại ShareX không?</value>
@@ -217,14 +214,8 @@ Bạn có muốn khởi động lại ShareX không?</value>
   <data name="ChromeForm_btnRegister_Click_Chrome_support_enabled_" xml:space="preserve">
     <value>Hỗ trợ Chrome được bật</value>
   </data>
-  <data name="EncoderProgramForm_btnOK_Click_Extension_can_t_be_empty_" xml:space="preserve">
-    <value>Phần đuôi mở rộng không được để trống.</value>
-  </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_After_capture___0_" xml:space="preserve">
     <value>Sau khi chụp: {0}</value>
-  </data>
-  <data name="TaskSettingsForm_ConfigureEncoder_Configure_CLI_video_encoders_____" xml:space="preserve">
-    <value>Thiết lập CLI video encoder...</value>
   </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_URL_shortener___0_" xml:space="preserve">
     <value>Dịch vụ rút gọn URL: {0}</value>
@@ -357,9 +348,6 @@ Bạn có muốn khởi động lại ShareX không?</value>
   <data name="HotkeyManager_ShowFailedHotkeys_hotkeys" xml:space="preserve">
     <value>Các phím tắt</value>
   </data>
-  <data name="EncoderProgramForm_btnOK_Click_Path_can_t_be_empty_" xml:space="preserve">
-    <value>Đường dẫn không được để trống.</value>
-  </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_File_uploader___0_" xml:space="preserve">
     <value>Dịch vụ tải lên tệp: {0}</value>
   </data>
@@ -369,15 +357,9 @@ Bạn có muốn khởi động lại ShareX không?</value>
   <data name="TaskHelpers_TweetMessage_Tweet_successfully_sent_" xml:space="preserve">
     <value>Đã gửi Tweet thành công.</value>
   </data>
-  <data name="EncoderProgramForm_btnPathBrowse_Click_Choose_encoder_path" xml:space="preserve">
-    <value>Chọn đường dẫn tới encoder</value>
-  </data>
   <data name="Program_WritePersonalPathConfig_Cant_access_to_file" xml:space="preserve">
     <value>Không thể truy cập tới tệp "{0}"
 Vui lòng chạy ShareX dưới quyền administrator để thay đổi thư mục riêng.</value>
-  </data>
-  <data name="ScreenRecordForm_StartRecording_CLI_video_encoder_file_does_not_exist__" xml:space="preserve">
-    <value>Tệp CLI video encoder không tồn tại:</value>
   </data>
   <data name="ApplicationSettingsForm_cbSteamShowInApp_CheckedChanged_For_settings_to_take_effect_ShareX_needs_to_be_reopened_from_Steam_" xml:space="preserve">
     <value>Để thiết lập có tác dụng ShareX cần được mở lại từ Steam.</value>
@@ -417,9 +399,6 @@ Nhấn "Không" để hủy tiến trình tải lên hiện tại và tắt ch�
   <data name="UploadTask_DoUploadJob_Uploading" xml:space="preserve">
     <value>Đang tải lên</value>
   </data>
-  <data name="ScreenRecordForm_StartRecording_There_is_no_valid_CLI_video_encoder_selected_" xml:space="preserve">
-    <value>Không có CLI video encoder phù hợp được chọn</value>
-  </data>
   <data name="ScreenRecordForm_DownloaderForm_InstallRequested_FFmpeg_successfully_downloaded_" xml:space="preserve">
     <value>FFmpeg đã được tải xuống thành công.</value>
   </data>
@@ -428,9 +407,6 @@ Nhấn "Không" để hủy tiến trình tải lên hiện tại và tắt ch�
   </data>
   <data name="ScreenRecordForm_StartRecording_FFmpeg_error" xml:space="preserve">
     <value>Lỗi FFmpeg</value>
-  </data>
-  <data name="TaskHelpers_OpenFTPClient_Unable_to_find_valid_FTP_account_" xml:space="preserve">
-    <value>Không thể tìm thấy tài khoản FTP hợp lệ.</value>
   </data>
   <data name="ApplicationSettingsForm_cbStartWithWindows_Text" xml:space="preserve">
     <value>Chạy ShareX cùng Windows</value>
@@ -479,9 +455,6 @@ Nhấn "Không" để hủy tiến trình tải lên hiện tại và tắt ch�
   </data>
   <data name="ApplicationSettingsForm_btnResetSettings_Click_WouldYouLikeToResetShareXSettings" xml:space="preserve">
     <value>Bạn có muốn đặt lại các cài đặt cho ShareX không?</value>
-  </data>
-  <data name="MustReopenForPersonalFolderChangesToTakeEffect" xml:space="preserve">
-    <value>Bạn cần mở lại ShareX để thay đổi thư mục cá nhân có hiệu lực.</value>
   </data>
   <data name="AboutForm_AboutForm_Language_vi_VN" xml:space="preserve">
     <value>Tiếng Việt</value>
@@ -565,5 +538,49 @@ Nhấn chuột giữa để đóng</value>
   </data>
   <data name="ActionsToolbar_StayTopMost" xml:space="preserve">
     <value>Giữ ở trên cùng</value>
+  </data>
+  <data name="OCRForm_AutoCompleteFail" xml:space="preserve">
+    <value>Lỗi xảy ra trong quá trình xử lí nhận diện văn bản (OCR), hoặc không có văn bản được nhận diện.</value>
+  </data>
+  <data name="AboutForm_AboutForm_Language_uk" xml:space="preserve">
+    <value>Tiếng Ukraina</value>
+  </data>
+  <data name="ScreenshotDelay0S" xml:space="preserve">
+    <value>Thời gian trễ chụp ảnh màn hình: {0} giây</value>
+  </data>
+  <data name="AboutForm_AboutForm_Language_id_ID" xml:space="preserve">
+    <value>Tiếng Indonesia</value>
+  </data>
+  <data name="OCRForm_AutoComplete" xml:space="preserve">
+    <value>Kết quả nhận diện văn bản (OCR) đã được sao chép vào vùng nhớ tạm</value>
+  </data>
+  <data name="ShareXOpticalCharacterRecognition" xml:space="preserve">
+    <value>ShareX - Nhận diện văn bản</value>
+  </data>
+  <data name="OCRForm_AutoProcessing" xml:space="preserve">
+    <value>Đang nhận diện văn bản (OCR)</value>
+  </data>
+  <data name="SwitchToThumbnailView" xml:space="preserve">
+    <value>Chuyển qua xem trước ảnh</value>
+  </data>
+  <data name="ShareXConfirmation" xml:space="preserve">
+    <value>ShareX - Xác nhận</value>
+  </data>
+  <data name="SwitchToListView" xml:space="preserve">
+    <value>Chuyển qua dạng danh sách</value>
+  </data>
+  <data name="ShareXNeedsToBeRestartedForThePersonalFolderChangesToApply" xml:space="preserve">
+    <value>ShareX cần được khởi động lại để thay đổi thư mục cá nhân có hiệu lực.
+
+Bạn có muốn khởi động lại ShareX?</value>
+  </data>
+  <data name="AboutForm_AboutForm_Language_es_MX" xml:space="preserve">
+    <value>Tiếng Tây Ban Nha Mexico</value>
+  </data>
+  <data name="PleaseNoteThatShareXIsUsingOCRSpaceSOnlineAPIToPerformOpticalCharacterRecognitionDoYouGivePermissionToShareXToUploadImagesToThisService" xml:space="preserve">
+    <value>Vui lòng lưu ý ShareX đang sử dụng dịch vụ online của OCR.Space để thực hiện nhận diện văn bản. Bạn có muốn cho phép ShareX tải ảnh lên dịch vụ này không?</value>
+  </data>
+  <data name="MainForm_UploadDebugLogWarning" xml:space="preserve">
+    <value>Dữ liệu debug có thể chứa thông tin nhạy cảm. Bạn có chắc muốn tiếp tục không?</value>
   </data>
 </root>

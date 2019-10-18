@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -207,9 +207,6 @@ namespace ShareX
                     break;
                 case HotkeyType.VideoThumbnailer:
                     OpenVideoThumbnailer(safeTaskSettings);
-                    break;
-                case HotkeyType.FTPClient:
-                    OpenFTPClient();
                     break;
                 case HotkeyType.TweetMessage:
                     TweetMessage();
@@ -611,30 +608,17 @@ namespace ShareX
             AddExternalProgramFromRegistry(taskSettings, "Adobe Photoshop", "Photoshop.exe");
             AddExternalProgramFromRegistry(taskSettings, "IrfanView", "i_view32.exe");
             AddExternalProgramFromRegistry(taskSettings, "XnView", "xnview.exe");
-            AddExternalProgramFromFile(taskSettings, "OptiPNG", "optipng.exe");
         }
 
-        private static void AddExternalProgramFromFile(TaskSettings taskSettings, string name, string filename, string args = "")
+        private static void AddExternalProgramFromRegistry(TaskSettings taskSettings, string name, string fileName)
         {
             if (!taskSettings.ExternalPrograms.Exists(x => x.Name == name))
             {
-                if (File.Exists(filename))
+                string filePath = RegistryHelpers.SearchProgramPath(fileName);
+
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    DebugHelper.WriteLine("Found program: " + filename);
-
-                    taskSettings.ExternalPrograms.Add(new ExternalProgram(name, filename, args));
-                }
-            }
-        }
-
-        private static void AddExternalProgramFromRegistry(TaskSettings taskSettings, string name, string filename)
-        {
-            if (!taskSettings.ExternalPrograms.Exists(x => x.Name == name))
-            {
-                ExternalProgram externalProgram = RegistryHelpers.FindProgram(name, filename);
-
-                if (externalProgram != null)
-                {
+                    ExternalProgram externalProgram = new ExternalProgram(name, filePath);
                     taskSettings.ExternalPrograms.Add(externalProgram);
                 }
             }
@@ -642,7 +626,7 @@ namespace ShareX
 
         public static Icon GetProgressIcon(int percentage)
         {
-            percentage = percentage.Between(0, 99);
+            percentage = percentage.Clamp(0, 99);
 
             Size size = SystemInformation.SmallIconSize;
             using (Bitmap bmp = new Bitmap(size.Width, size.Height))
@@ -661,8 +645,8 @@ namespace ShareX
                 using (Font font = new Font("Arial", 10))
                 using (StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
                 {
-                    g.DrawString(percentage.ToString(), font, Brushes.Black, size.Width / 2, size.Height / 2, sf);
-                    g.DrawString(percentage.ToString(), font, Brushes.White, size.Width / 2, (size.Height / 2) - 1, sf);
+                    g.DrawString(percentage.ToString(), font, Brushes.Black, size.Width / 2f, size.Height / 2f, sf);
+                    g.DrawString(percentage.ToString(), font, Brushes.White, size.Width / 2f, (size.Height / 2f) - 1, sf);
                 }
 
                 return Icon.FromHandle(bmp.GetHicon());
@@ -775,6 +759,24 @@ namespace ShareX
             imageHistoryForm.Show();
         }
 
+        public static void OpenDebugLog()
+        {
+            DebugForm form = DebugForm.GetFormInstance(DebugHelper.Logger);
+
+            if (!form.HasUploadRequested)
+            {
+                form.UploadRequested += text =>
+                {
+                    if (MessageBox.Show(form, Resources.MainForm_UploadDebugLogWarning, "ShareX", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    {
+                        UploadManager.UploadText(text);
+                    }
+                };
+            }
+
+            form.ForceActivate();
+        }
+
         public static void ShowScreenColorPickerDialog(TaskSettings taskSettings = null)
         {
             if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
@@ -794,15 +796,9 @@ namespace ShareX
 
                 ClipboardHelpers.CopyText(text);
 
-                if (Program.MainForm.niTray.Visible)
+                if (!taskSettings.AdvancedSettings.DisableNotifications && taskSettings.GeneralSettings.PopUpNotification != PopUpNotificationType.None)
                 {
-                    Program.MainForm.niTray.Tag = null;
-
-                    if (!taskSettings.AdvancedSettings.DisableNotifications && taskSettings.GeneralSettings.PopUpNotification != PopUpNotificationType.None)
-                    {
-                        Program.MainForm.niTray.ShowBalloonTip(3000, "ShareX",
-                            string.Format(Resources.TaskHelpers_OpenQuickScreenColorPicker_Copied_to_clipboard___0_, text), ToolTipIcon.Info);
-                    }
+                    ShowBalloonTip(string.Format(Resources.TaskHelpers_OpenQuickScreenColorPicker_Copied_to_clipboard___0_, text), ToolTipIcon.Info, 3000);
                 }
             }
         }
@@ -835,6 +831,12 @@ namespace ShareX
             ImageCombinerForm imageCombinerForm = new ImageCombinerForm(taskSettings.ToolsSettingsReference.ImageCombinerOptions, imageFiles);
             imageCombinerForm.ProcessRequested += img => UploadManager.RunImageTask(img, taskSettings);
             imageCombinerForm.Show();
+        }
+
+        public static void OpenImageSplitter()
+        {
+            ImageSplitterForm imageSplitterForm = new ImageSplitterForm();
+            imageSplitterForm.Show();
         }
 
         public static void OpenImageThumbnailer(TaskSettings taskSettings = null)
@@ -1072,7 +1074,7 @@ namespace ShareX
                     {
                         FileName = Application.ExecutablePath,
                         Arguments = arguments,
-                        UseShellExecute = false,
+                        UseShellExecute = true,
                         Verb = "runas"
                     };
 
@@ -1142,6 +1144,19 @@ namespace ShareX
 
                 OCROptions ocrOptions = taskSettings.CaptureSettings.OCROptions;
 
+                if (!ocrOptions.Permission)
+                {
+                    if (MessageBox.Show(Resources.PleaseNoteThatShareXIsUsingOCRSpaceSOnlineAPIToPerformOpticalCharacterRecognitionDoYouGivePermissionToShareXToUploadImagesToThisService,
+                        Resources.ShareXOpticalCharacterRecognition, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        taskSettings.CaptureSettingsReference.OCROptions.Permission = true;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
                 if (ocrOptions.Silent)
                 {
                     await AsyncOCRImage(stream, fileName, filePath, ocrOptions);
@@ -1164,7 +1179,7 @@ namespace ShareX
 
         public static async Task AsyncOCRImage(Stream stream, string fileName, string filePath, OCROptions ocrOptions)
         {
-            Program.MainForm.niTray.ShowBalloonTip(3000, "ShareX", Resources.OCRForm_AutoProcessing, ToolTipIcon.None);
+            ShowBalloonTip(Resources.OCRForm_AutoProcessing, ToolTipIcon.None, 3000);
 
             string result = null;
 
@@ -1183,36 +1198,12 @@ namespace ShareX
                     File.WriteAllText(textPath, result, Encoding.UTF8);
                 }
 
-                Program.MainForm.niTray.ShowBalloonTip(3000, "ShareX", Resources.OCRForm_AutoComplete, ToolTipIcon.None);
+                ShowBalloonTip(Resources.OCRForm_AutoComplete, ToolTipIcon.None, 3000);
             }
             else
             {
-                Program.MainForm.niTray.ShowBalloonTip(3000, "ShareX", Resources.OCRForm_AutoCompleteFail, ToolTipIcon.Warning);
+                ShowBalloonTip(Resources.OCRForm_AutoCompleteFail, ToolTipIcon.Warning, 3000);
             }
-        }
-
-        public static void OpenFTPClient()
-        {
-            if (Program.UploadersConfig != null && Program.UploadersConfig.FTPAccountList != null)
-            {
-                FTPAccount account = Program.UploadersConfig.FTPAccountList.ReturnIfValidIndex(Program.UploadersConfig.FTPSelectedImage);
-
-                if (account != null)
-                {
-                    if (account.Protocol == FTPProtocol.FTP || account.Protocol == FTPProtocol.FTPS)
-                    {
-                        new FTPClientForm(account).Show();
-                    }
-                    else
-                    {
-                        MessageBox.Show(Resources.TaskHelpers_OpenFTPClient_FTP_client_only_supports_FTP_or_FTPS_, "ShareX", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-
-                    return;
-                }
-            }
-
-            MessageBox.Show(Resources.TaskHelpers_OpenFTPClient_Unable_to_find_valid_FTP_account_, "ShareX", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         public static void TweetMessage()
@@ -1229,11 +1220,7 @@ namespace ShareX
                         {
                             if (twitter.ShowDialog() == DialogResult.OK && twitter.IsTweetSent)
                             {
-                                if (Program.MainForm.niTray.Visible)
-                                {
-                                    Program.MainForm.niTray.Tag = null;
-                                    Program.MainForm.niTray.ShowBalloonTip(5000, "ShareX - Twitter", Resources.TaskHelpers_TweetMessage_Tweet_successfully_sent_, ToolTipIcon.Info);
-                                }
+                                ShowBalloonTip(Resources.TaskHelpers_TweetMessage_Tweet_successfully_sent_, ToolTipIcon.Info, 3000);
                             }
                         }
                     });
@@ -1268,12 +1255,8 @@ namespace ShareX
             Program.HotkeyManager.ToggleHotkeys(hotkeysDisabled);
             Program.MainForm.UpdateToggleHotkeyButton();
 
-            if (Program.MainForm.niTray.Visible)
-            {
-                Program.MainForm.niTray.Tag = null;
-                string balloonTipText = hotkeysDisabled ? Resources.TaskHelpers_ToggleHotkeys_Hotkeys_disabled_ : Resources.TaskHelpers_ToggleHotkeys_Hotkeys_enabled_;
-                Program.MainForm.niTray.ShowBalloonTip(3000, "ShareX", balloonTipText, ToolTipIcon.Info);
-            }
+            string balloonTipText = hotkeysDisabled ? Resources.TaskHelpers_ToggleHotkeys_Hotkeys_disabled_ : Resources.TaskHelpers_ToggleHotkeys_Hotkeys_enabled_;
+            ShowBalloonTip(balloonTipText, ToolTipIcon.Info, 3000);
 
             return hotkeysDisabled;
         }
@@ -1423,6 +1406,25 @@ namespace ShareX
             }
         }
 
+        public static void OpenCustomUploaderSettingsWindow()
+        {
+            SettingManager.WaitUploadersConfig();
+
+            bool firstInstance = !CustomUploaderSettingsForm.IsInstanceActive;
+
+            CustomUploaderSettingsForm form = CustomUploaderSettingsForm.GetFormInstance(Program.UploadersConfig);
+
+            if (firstInstance)
+            {
+                form.FormClosed += (sender, e) => SettingManager.SaveUploadersConfigAsync();
+                form.Show();
+            }
+            else
+            {
+                form.ForceActivate();
+            }
+        }
+
         public static Image FindMenuIcon<T>(int index)
         {
             T e = Helpers.GetEnumFromIndex<T>(index);
@@ -1542,7 +1544,6 @@ namespace ShareX
                 case HotkeyType.IndexFolder: return Resources.folder_tree;
                 case HotkeyType.ImageCombiner: return Resources.document_break;
                 case HotkeyType.VideoThumbnailer: return Resources.images_stack;
-                case HotkeyType.FTPClient: return Resources.application_network;
                 case HotkeyType.TweetMessage: return Resources.Twitter;
                 case HotkeyType.MonitorTest: return Resources.monitor;
                 // Other
@@ -1619,6 +1620,7 @@ namespace ShareX
                             }
                         }
 
+                        cui.CheckBackwardCompatibility();
                         Program.UploadersConfig.CustomUploadersList.Add(cui);
 
                         if (activate)
@@ -1657,11 +1659,11 @@ namespace ShareX
 
                             Program.MainForm.UpdateCheckStates();
                             Program.MainForm.UpdateUploaderMenuNames();
+                        }
 
-                            if (UploadersConfigForm.IsInstanceActive)
-                            {
-                                UploadersConfigForm.CustomUploaderUpdateTab();
-                            }
+                        if (CustomUploaderSettingsForm.IsInstanceActive)
+                        {
+                            CustomUploaderSettingsForm.CustomUploaderUpdateTab();
                         }
                     }
                 }
@@ -1772,6 +1774,15 @@ namespace ShareX
         public static bool CheckQRCodeContent(string content)
         {
             return !string.IsNullOrEmpty(content) && Encoding.UTF8.GetByteCount(content) <= 2952;
+        }
+
+        public static void ShowBalloonTip(string text, ToolTipIcon icon, int timeout, string title = "ShareX", BalloonTipAction clickAction = null)
+        {
+            if (Program.MainForm != null && !Program.MainForm.IsDisposed && Program.MainForm.niTray != null && Program.MainForm.niTray.Visible)
+            {
+                Program.MainForm.niTray.Tag = clickAction;
+                Program.MainForm.niTray.ShowBalloonTip(timeout, title, text, icon);
+            }
         }
     }
 }

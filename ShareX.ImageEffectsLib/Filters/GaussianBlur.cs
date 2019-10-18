@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ namespace ShareX.ImageEffectsLib
             get => size;
             set
             {
-                size = value.Min(1);
+                size = value.Max(1);
 
                 if (size.IsEvenNumber())
                 {
@@ -67,7 +67,11 @@ namespace ShareX.ImageEffectsLib
         {
             ConvolutionMatrix kernelHoriz = ConvolutionMatrixManager.GaussianBlur(1, size, sigma);
 
-            ConvolutionMatrix kernelVert = new ConvolutionMatrix(size, 1);
+            ConvolutionMatrix kernelVert = new ConvolutionMatrix(size, 1)
+            {
+                ConsiderAlpha = kernelHoriz.ConsiderAlpha
+            };
+
             for (int i = 0; i < size; i++)
             {
                 kernelVert[i, 0] = kernelHoriz[0, i];

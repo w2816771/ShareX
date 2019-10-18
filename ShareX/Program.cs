@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -234,8 +234,15 @@ namespace ShareX
         [STAThread]
         private static void Main(string[] args)
         {
-#if !DEBUG // Allow Visual Studio to break on exceptions in Debug builds.
+            // Allow Visual Studio to break on exceptions in Debug builds
+#if !DEBUG
+            // Add the event handler for handling UI thread exceptions to the event
             Application.ThreadException += Application_ThreadException;
+
+            // Set the unhandled exception mode to force all Windows Forms errors to go through our handler
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
+            // Add the event handler for handling non-UI thread exceptions to the event
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 #endif
 

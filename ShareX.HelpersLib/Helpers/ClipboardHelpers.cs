@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -108,11 +108,6 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    if (HelpersOptions.UseAlternativeCopyImage)
-                    {
-                        return CopyImageAlternative(img);
-                    }
-
                     if (HelpersOptions.DefaultCopyImageFillBackground)
                     {
                         return CopyImageDefaultFillBackground(img, Color.White);
@@ -245,11 +240,6 @@ namespace ShareX.HelpersLib
             {
                 lock (ClipboardLock)
                 {
-                    if (HelpersOptions.UseAlternativeGetImage)
-                    {
-                        return GetImageAlternative();
-                    }
-
                     return Clipboard.GetImage();
                 }
             }
@@ -294,12 +284,7 @@ namespace ShareX.HelpersLib
                                 {
                                     try
                                     {
-                                        Image img = GetDIBImage(ms);
-
-                                        if (img != null)
-                                        {
-                                            return img;
-                                        }
+                                        return GetDIBImage(ms);
                                     }
                                     catch (Exception e)
                                     {

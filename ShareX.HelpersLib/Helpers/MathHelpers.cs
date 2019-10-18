@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -36,10 +36,66 @@ namespace ShareX.HelpersLib
 
         private static readonly object randomLock = new object();
         private static readonly Random random = new Random();
-
         private static readonly object cryptoRandomLock = new object();
         private static readonly RNGCryptoServiceProvider cryptoRandom = new RNGCryptoServiceProvider();
         private static byte[] rngBuf = new byte[4];
+
+        public static T Min<T>(T num, T min) where T : IComparable<T>
+        {
+            if (num.CompareTo(min) > 0) return min;
+            return num;
+        }
+
+        public static T Max<T>(T num, T max) where T : IComparable<T>
+        {
+            if (num.CompareTo(max) < 0) return max;
+            return num;
+        }
+
+        public static T Clamp<T>(T num, T min, T max) where T : IComparable<T>
+        {
+            if (num.CompareTo(min) <= 0) return min;
+            if (num.CompareTo(max) >= 0) return max;
+            return num;
+        }
+
+        public static bool IsBetween<T>(T num, T min, T max) where T : IComparable<T>
+        {
+            return num.CompareTo(min) >= 0 && num.CompareTo(max) <= 0;
+        }
+
+        public static T BetweenOrDefault<T>(T num, T min, T max, T defaultValue = default(T)) where T : IComparable<T>
+        {
+            if (num.CompareTo(min) >= 0 && num.CompareTo(max) <= 0) return num;
+            return defaultValue;
+        }
+
+        public static float Remap(float value, float from1, float to1, float from2, float to2)
+        {
+            return ((value - from1) / (to1 - from1) * (to2 - from2)) + from2;
+        }
+
+        public static bool IsEvenNumber(int num)
+        {
+            return num % 2 == 0;
+        }
+
+        public static bool IsOddNumber(int num)
+        {
+            return num % 2 != 0;
+        }
+
+        public static float Lerp(float value1, float value2, float amount)
+        {
+            return value1 + ((value2 - value1) * amount);
+        }
+
+        public static Vector2 Lerp(Vector2 pos1, Vector2 pos2, float amount)
+        {
+            float x = Lerp(pos1.X, pos2.X, amount);
+            float y = Lerp(pos1.Y, pos2.Y, amount);
+            return new Vector2(x, y);
+        }
 
         /// <summary>
         /// Returns a random number between 0 and <c>max</c> (inclusive).
@@ -58,12 +114,32 @@ namespace ShareX.HelpersLib
             }
         }
 
+        /// <summary>
+        /// Returns a random number between <c>min</c> and <c>max</c> (inclusive).
+        /// </summary>
+        /// <remarks>
+        /// This uses <c>System.Random()</c>, which does not provide safe random numbers. This function
+        /// should not be used to generate things that should be unique, like random file names.
+        /// </remarks>
+        /// <param name="min">The lower limit of the number (inclusive).</param>
+        /// <param name="max">The upper limit of the number (inclusive).</param>
+        /// <returns>A random number.</returns>
         public static int Random(int min, int max)
         {
             lock (randomLock)
             {
                 return random.Next(min, max + 1);
             }
+        }
+
+        public static int RandomAdd(int num, int min, int max)
+        {
+            return num + Random(min, max);
+        }
+
+        public static T RandomPick<T>(params T[] array)
+        {
+            return array[Random(array.Length - 1)];
         }
 
         /// <summary>
@@ -79,7 +155,7 @@ namespace ShareX.HelpersLib
         /// <summary>
         /// Returns a random number between <c>min</c> and <c>max</c> (inclusive) generated with a cryptographic PRNG.
         /// </summary>
-        /// <param name="min">The lower limit of the number.</param>
+        /// <param name="min">The lower limit of the number (inclusive).</param>
         /// <param name="max">The upper limit of the number (inclusive).</param>
         /// <returns>A cryptographically random number.</returns>
         public static int CryptoRandom(int min, int max)
@@ -112,6 +188,11 @@ namespace ShareX.HelpersLib
 
                 return (int)(min + (r % diff));
             }
+        }
+
+        public static T CryptoRandomPick<T>(params T[] array)
+        {
+            return array[CryptoRandom(array.Length - 1)];
         }
 
         public static float RadianToDegree(float radian)
@@ -172,36 +253,6 @@ namespace ShareX.HelpersLib
         public static float Distance(Vector2 pos1, Vector2 pos2)
         {
             return (float)Math.Sqrt(Math.Pow(pos2.X - pos1.X, 2) + Math.Pow(pos2.Y - pos1.Y, 2));
-        }
-
-        public static float Lerp(float value1, float value2, float amount)
-        {
-            return value1 + ((value2 - value1) * amount);
-        }
-
-        public static Vector2 Lerp(Vector2 pos1, Vector2 pos2, float amount)
-        {
-            float x = Lerp(pos1.X, pos2.X, amount);
-            float y = Lerp(pos1.Y, pos2.Y, amount);
-            return new Vector2(x, y);
-        }
-
-        public static void Clamp<T>(ref T val, T min, T max) where T : IComparable<T>
-        {
-            if (val.CompareTo(min) < 0)
-            {
-                val = min;
-            }
-            else if (val.CompareTo(max) > 0)
-            {
-                val = max;
-            }
-        }
-
-        public static T Clamp<T>(T val, T min, T max) where T : IComparable<T>
-        {
-            Clamp(ref val, min, max);
-            return val;
         }
     }
 }

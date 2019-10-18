@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -83,6 +83,9 @@ namespace ShareX.ScreenCaptureLib
         public Color StepFillColor { get; set; } = PrimaryColor;
         public int StepFontSize { get; set; } = 18;
         public bool StepUseLetters { get; set; } = false;
+
+        // Magnify drawing
+        public int MagnifyStrength { get; set; } = 200;
 
         // Sticker drawing
         public List<StickerPackInfo> StickerPacks = new List<StickerPackInfo>()

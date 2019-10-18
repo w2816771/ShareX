@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -60,6 +60,7 @@ namespace ShareX
         private ActionsToolbarForm()
         {
             InitializeComponent();
+            ShareXResources.ApplyTheme(this);
         }
 
         private void InitializeComponent()
@@ -74,7 +75,6 @@ namespace ShareX
             BackColor = SystemColors.ActiveBorder;
             ClientSize = new Size(284, 261);
             FormBorderStyle = FormBorderStyle.None;
-            Icon = ShareXResources.Icon;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
             Text = "ShareX - Actions toolbar";
@@ -96,7 +96,7 @@ namespace ShareX
                 Margin = new Padding(1),
                 MinimumSize = new Size(10, 30),
                 Padding = new Padding(0, 1, 0, 0),
-                Renderer = new CustomToolStripProfessionalRenderer(),
+                Renderer = new ToolStripRoundedEdgeRenderer(),
                 TabIndex = 0,
                 ShowItemToolTips = false
             };

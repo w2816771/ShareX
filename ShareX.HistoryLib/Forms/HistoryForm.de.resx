@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="$this.Text" xml:space="preserve">
-    <value>Chronik</value>
+    <value>ShareX - Chronik</value>
   </data>
   <data name="btnApplyFilters.Text" xml:space="preserve">
     <value>Filter hinzufügen</value>
@@ -128,18 +128,6 @@
   </data>
   <data name="cbDateFilter.Text" xml:space="preserve">
     <value>Datumsfilter:</value>
-  </data>
-  <data name="cbFilenameFilterMethod.Items" xml:space="preserve">
-    <value>Beinhaltet</value>
-  </data>
-  <data name="cbFilenameFilterMethod.Items1" xml:space="preserve">
-    <value>Fängt an mit</value>
-  </data>
-  <data name="cbFilenameFilterMethod.Items2" xml:space="preserve">
-    <value>Endet mit</value>
-  </data>
-  <data name="cbFilenameFilterMethod.Items3" xml:space="preserve">
-    <value>Genaues treffen</value>
   </data>
   <data name="cbHostFilter.Text" xml:space="preserve">
     <value>Hostfilter:</value>
@@ -167,5 +155,11 @@
   </data>
   <data name="chURL.Text" xml:space="preserve">
     <value>URL</value>
+  </data>
+  <data name="btnShowStats.Text" xml:space="preserve">
+    <value>Statistiken anzeigen</value>
+  </data>
+  <data name="lblURLFilter.Text" xml:space="preserve">
+    <value>URL:</value>
   </data>
 </root>

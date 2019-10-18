@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ namespace ShareX.UploadersLib
         public OCRSpaceForm(OCROptions ocrOptions)
         {
             InitializeComponent();
-            Icon = ShareXResources.Icon;
+            ShareXResources.ApplyTheme(this);
 
             this.ocrOptions = ocrOptions;
             cbLanguages.Items.AddRange(Helpers.GetEnumDescriptions<OCRSpaceLanguages>());
@@ -114,11 +114,6 @@ namespace ShareX.UploadersLib
         private async void btnStartOCR_Click(object sender, EventArgs e)
         {
             await StartOCR(data, fileName);
-        }
-
-        private void llAttribution_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            URLHelpers.OpenURL("https://ocr.space");
         }
 
         private void llGoogleTranslate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

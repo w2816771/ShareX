@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -229,16 +229,54 @@ namespace ShareX.HelpersLib
         {
             if (rtb.ContextMenuStrip == null)
             {
-                ContextMenuStrip cms = new ContextMenuStrip { ShowImageMargin = false };
+                ContextMenuStrip cms = new ContextMenuStrip()
+                {
+                    ShowImageMargin = false
+                };
+
+                ToolStripMenuItem tsmiUndo = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_Undo);
+                tsmiUndo.Click += (sender, e) => rtb.Undo();
+                cms.Items.Add(tsmiUndo);
+
+                ToolStripMenuItem tsmiRedo = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_Redo);
+                tsmiRedo.Click += (sender, e) => rtb.Redo();
+                cms.Items.Add(tsmiRedo);
+
+                cms.Items.Add(new ToolStripSeparator());
+
                 ToolStripMenuItem tsmiCut = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_Cut);
                 tsmiCut.Click += (sender, e) => rtb.Cut();
                 cms.Items.Add(tsmiCut);
+
                 ToolStripMenuItem tsmiCopy = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_Copy);
                 tsmiCopy.Click += (sender, e) => rtb.Copy();
                 cms.Items.Add(tsmiCopy);
+
                 ToolStripMenuItem tsmiPaste = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_Paste);
                 tsmiPaste.Click += (sender, e) => rtb.Paste();
                 cms.Items.Add(tsmiPaste);
+
+                ToolStripMenuItem tsmiDelete = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_Delete);
+                tsmiDelete.Click += (sender, e) => rtb.SelectedText = "";
+                cms.Items.Add(tsmiDelete);
+
+                cms.Items.Add(new ToolStripSeparator());
+
+                ToolStripMenuItem tsmiSelectAll = new ToolStripMenuItem(Resources.Extensions_AddContextMenu_SelectAll);
+                tsmiSelectAll.Click += (sender, e) => rtb.SelectAll();
+                cms.Items.Add(tsmiSelectAll);
+
+                cms.Opening += (sender, e) =>
+                {
+                    tsmiUndo.Enabled = !rtb.ReadOnly && rtb.CanUndo;
+                    tsmiRedo.Enabled = !rtb.ReadOnly && rtb.CanRedo;
+                    tsmiCut.Enabled = !rtb.ReadOnly && rtb.SelectionLength > 0;
+                    tsmiCopy.Enabled = rtb.SelectionLength > 0;
+                    tsmiPaste.Enabled = !rtb.ReadOnly && Clipboard.ContainsText();
+                    tsmiDelete.Enabled = !rtb.ReadOnly && rtb.SelectionLength > 0;
+                    tsmiSelectAll.Enabled = rtb.TextLength > 0 && rtb.SelectionLength < rtb.TextLength;
+                };
+
                 rtb.ContextMenuStrip = cms;
             }
         }
@@ -258,7 +296,7 @@ namespace ShareX.HelpersLib
 
         public static void SaveJPG(this Image img, Stream stream, int quality)
         {
-            quality = quality.Between(0, 100);
+            quality = quality.Clamp(0, 100);
             EncoderParameters encoderParameters = new EncoderParameters(1);
             encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
             img.Save(stream, ImageFormat.Jpeg.GetCodecInfo(), encoderParameters);
@@ -533,7 +571,7 @@ namespace ShareX.HelpersLib
 
         public static void SetValue(this NumericUpDown nud, decimal number)
         {
-            nud.Value = number.Between(nud.Minimum, nud.Maximum);
+            nud.Value = number.Clamp(nud.Minimum, nud.Maximum);
         }
 
         public static bool IsValidImage(this PictureBox pb)
@@ -655,6 +693,100 @@ namespace ShareX.HelpersLib
         {
             PropertyInfo pi = dgv.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
             pi.SetValue(dgv, value, null);
+        }
+
+        public static void AppendLine(this RichTextBox rtb, string value = "")
+        {
+            rtb.AppendText(value + Environment.NewLine);
+        }
+
+        public static void SetFontRegular(this RichTextBox rtb)
+        {
+            rtb.SelectionFont = new Font(rtb.Font, FontStyle.Regular);
+        }
+
+        public static void SetFontBold(this RichTextBox rtb)
+        {
+            rtb.SelectionFont = new Font(rtb.Font, FontStyle.Bold);
+        }
+
+        public static void SupportDarkTheme(this ListView lv)
+        {
+            if (!lv.OwnerDraw)
+            {
+                lv.OwnerDraw = true;
+
+                lv.DrawItem += (sender, e) =>
+                {
+                    e.DrawDefault = true;
+                };
+
+                lv.DrawSubItem += (sender, e) =>
+                {
+                    e.DrawDefault = true;
+                };
+
+                lv.DrawColumnHeader += (sender, e) =>
+                {
+                    if (ShareXResources.UseDarkTheme)
+                    {
+                        using (Brush brush = new SolidBrush(ShareXResources.Theme.BackgroundColor))
+                        {
+                            e.Graphics.FillRectangle(brush, e.Bounds);
+                        }
+
+                        TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font, e.Bounds.LocationOffset(2, 0).SizeOffset(-4, 0), ShareXResources.Theme.TextColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+
+                        if (e.Bounds.Right < lv.ClientRectangle.Right)
+                        {
+                            using (Pen pen = new Pen(ShareXResources.Theme.SeparatorDarkColor))
+                            using (Pen pen2 = new Pen(ShareXResources.Theme.SeparatorLightColor))
+                            {
+                                e.Graphics.DrawLine(pen, e.Bounds.Right - 2, e.Bounds.Top, e.Bounds.Right - 2, e.Bounds.Bottom - 1);
+                                e.Graphics.DrawLine(pen2, e.Bounds.Right - 1, e.Bounds.Top, e.Bounds.Right - 1, e.Bounds.Bottom - 1);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        e.DrawDefault = true;
+                    }
+                };
+            }
+        }
+
+        public static List<T> Range<T>(this List<T> source, int start, int end)
+        {
+            List<T> list = new List<T>();
+
+            if (start > end)
+            {
+                for (int i = start; i >= end; i--)
+                {
+                    list.Add(source[i]);
+                }
+            }
+            else
+            {
+                for (int i = start; i <= end; i++)
+                {
+                    list.Add(source[i]);
+                }
+            }
+
+            return list;
+        }
+
+        public static List<T> Range<T>(this List<T> source, T start, T end)
+        {
+            int startIndex = source.IndexOf(start);
+            if (startIndex == -1) return new List<T>();
+
+            int endIndex = source.IndexOf(end);
+            if (endIndex == -1) return new List<T>();
+
+            return Range(source, startIndex, endIndex);
         }
     }
 }

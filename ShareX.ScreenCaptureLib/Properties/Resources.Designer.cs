@@ -19,7 +19,7 @@ namespace ShareX.ScreenCaptureLib.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -146,6 +146,15 @@ namespace ShareX.ScreenCaptureLib.Properties {
             get {
                 object obj = ResourceManager.GetObject("clipboard", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close (Esc).
+        /// </summary>
+        internal static string CloseEsc {
+            get {
+                return ResourceManager.GetString("CloseEsc", resourceCulture);
             }
         }
         
@@ -833,6 +842,25 @@ namespace ShareX.ScreenCaptureLib.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap magnifier_zoom {
+            get {
+                object obj = ResourceManager.GetObject("magnifier_zoom", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Magnify strength:.
+        /// </summary>
+        internal static string MagnifyStrength {
+            get {
+                return ResourceManager.GetString("MagnifyStrength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap monitor {
             get {
                 object obj = ResourceManager.GetObject("monitor", resourceCulture);
@@ -1228,6 +1256,24 @@ namespace ShareX.ScreenCaptureLib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Switch to drawing tool after shape selection.
+        /// </summary>
+        internal static string ShapeManager_CreateContextMenu_SwitchToDrawingToolAfterSelection {
+            get {
+                return ResourceManager.GetString("ShapeManager_CreateContextMenu_SwitchToDrawingToolAfterSelection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to selection tool after shape drawing.
+        /// </summary>
+        internal static string ShapeManager_CreateContextMenu_SwitchToSelectionToolAfterDrawing {
+            get {
+                return ResourceManager.GetString("ShapeManager_CreateContextMenu_SwitchToSelectionToolAfterDrawing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Width:.
         /// </summary>
         internal static string ShapeManager_CreateContextMenu_Width_ {
@@ -1381,15 +1427,6 @@ namespace ShareX.ScreenCaptureLib.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Editor background color....
-        /// </summary>
-        internal static string ShapeManager_CreateToolbar_EditorBackgroundColor {
-            get {
-                return ResourceManager.GetString("ShapeManager_CreateToolbar_EditorBackgroundColor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Editor start mode:.
         /// </summary>
         internal static string ShapeManager_CreateToolbar_EditorStartMode {
@@ -1462,7 +1499,7 @@ namespace ShareX.ScreenCaptureLib.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Interpolation mode.
+        ///   Looks up a localized string similar to Interpolation mode:.
         /// </summary>
         internal static string ShapeManager_CreateToolbar_InterpolationMode {
             get {
@@ -1657,6 +1694,16 @@ namespace ShareX.ScreenCaptureLib.Properties {
         internal static System.Drawing.Bitmap smiley_yell {
             get {
                 object obj = ResourceManager.GetObject("smiley_yell", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap stamp_cursor {
+            get {
+                object obj = ResourceManager.GetObject("stamp_cursor", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

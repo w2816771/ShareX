@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -36,6 +37,8 @@ namespace ShareX.ScreenCaptureLib
         public override ShapeType ShapeType { get; } = ShapeType.DrawingFreehand;
 
         public override bool IsValidShape => positions.Count > 0;
+
+        public override bool IsSelectable => Manager.CurrentTool == ShapeType.ToolSelect;
 
         public Point LastPosition
         {
@@ -59,11 +62,6 @@ namespace ShareX.ScreenCaptureLib
 
         private List<Point> positions = new List<Point>();
         private bool isPolygonMode;
-
-        public override bool Intersects(Point position)
-        {
-            return false;
-        }
 
         public override void ShowNodes()
         {
@@ -114,12 +112,14 @@ namespace ShareX.ScreenCaptureLib
 
         protected void DrawFreehand(Graphics g)
         {
+            int borderSize = Math.Max(BorderSize, 1);
+
             if (Shadow)
             {
-                DrawFreehand(g, ShadowColor, BorderSize, positions.Select(x => x.Add(ShadowOffset)).ToArray());
+                DrawFreehand(g, ShadowColor, borderSize, positions.Select(x => x.Add(ShadowOffset)).ToArray());
             }
 
-            DrawFreehand(g, BorderColor, BorderSize, positions.ToArray());
+            DrawFreehand(g, BorderColor, borderSize, positions.ToArray());
         }
 
         protected void DrawFreehand(Graphics g, Color borderColor, int borderSize, Point[] points)

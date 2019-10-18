@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -106,18 +106,17 @@ namespace ShareX
         private static ManualResetEvent uploadersConfigResetEvent = new ManualResetEvent(false);
         private static ManualResetEvent hotkeysConfigResetEvent = new ManualResetEvent(false);
 
+        private const int SettingsSaveFailWarningLimit = 3;
+        private static int settingsSaveFailWarningCount;
+
         public static void LoadInitialSettings()
         {
             LoadApplicationConfig();
-
-            ApplicationConfigBackwardCompatibilityTasks();
 
             Task.Run(() =>
             {
                 LoadUploadersConfig();
                 uploadersConfigResetEvent.Set();
-
-                UploadersConfigBackwardCompatibilityTasks();
 
                 LoadHotkeysConfig();
                 hotkeysConfigResetEvent.Set();
@@ -143,12 +142,40 @@ namespace ShareX
         public static void LoadApplicationConfig()
         {
             Settings = ApplicationConfig.Load(ApplicationConfigFilePath, BackupFolder, true, true);
+            Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
             DefaultTaskSettings = Settings.DefaultTaskSettings;
+            ApplicationConfigBackwardCompatibilityTasks();
+        }
+
+        private static void Settings_SettingsSaveFailed(Exception e)
+        {
+            if (settingsSaveFailWarningCount == SettingsSaveFailWarningLimit) return;
+
+            string message;
+
+            if (e is UnauthorizedAccessException || e is FileNotFoundException)
+            {
+                message = "Your anti-virus software or the controlled folder access feature in Windows 10 could be blocking ShareX.";
+            }
+            else
+            {
+                message = e.Message;
+            }
+
+            BalloonTipAction action = new BalloonTipAction()
+            {
+                ClickAction = BalloonTipClickAction.OpenDebugLog
+            };
+
+            TaskHelpers.ShowBalloonTip(message, ToolTipIcon.Warning, 5000, "ShareX failed to save settings", action);
+
+            settingsSaveFailWarningCount++;
         }
 
         public static void LoadUploadersConfig()
         {
             UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, BackupFolder, true, true);
+            UploadersConfigBackwardCompatibilityTasks();
         }
 
         public static void LoadHotkeysConfig()
@@ -210,6 +237,14 @@ namespace ShareX
                     {
                         UploadersConfig.AmazonS3Settings.Endpoint = "";
                     }
+                }
+            }
+
+            if (UploadersConfig.CustomUploadersList != null)
+            {
+                foreach (CustomUploaderItem cui in UploadersConfig.CustomUploadersList)
+                {
+                    cui.CheckBackwardCompatibility();
                 }
             }
         }

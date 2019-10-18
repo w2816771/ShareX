@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -32,6 +32,8 @@ namespace ShareX.HelpersLib
         public int Width => matrix.GetLength(1);
         public int Height => matrix.GetLength(0);
         public byte Offset { get; set; }
+
+        public bool ConsiderAlpha { get; set; }
 
         public ConvolutionMatrix() : this(3)
         {

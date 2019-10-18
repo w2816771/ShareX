@@ -153,6 +153,7 @@
     <Compile Include="Shapes\BaseShape.cs" />
     <Compile Include="Shapes\Drawing\ArrowDrawingShape.cs" />
     <Compile Include="Shapes\Drawing\ImageFileDrawingShape.cs" />
+    <Compile Include="Shapes\Drawing\MagnifyDrawingShape.cs" />
     <Compile Include="Shapes\Drawing\StickerDrawingShape.cs" />
     <Compile Include="Shapes\StickerPackInfo.cs" />
     <Compile Include="Shapes\Tool\BaseTool.cs" />
@@ -235,6 +236,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\magnifier-zoom.png" />
+    <None Include="Resources\stamp-cursor.png" />
     <None Include="Resources\smiley-yell.png" />
     <None Include="Resources\smiley-cool.png" />
     <None Include="Resources\gradient.png" />
@@ -319,6 +322,12 @@
     <EmbeddedResource Include="Forms\CanvasSizeForm.es-MX.resx">
       <DependentUpon>CanvasSizeForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CanvasSizeForm.fa-IR.resx">
+      <DependentUpon>CanvasSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CanvasSizeForm.fr.resx">
+      <DependentUpon>CanvasSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\CanvasSizeForm.id-ID.resx">
       <DependentUpon>CanvasSizeForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -340,7 +349,19 @@
     <EmbeddedResource Include="Forms\CanvasSizeForm.zh-CN.resx">
       <DependentUpon>CanvasSizeForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CanvasSizeForm.zh-TW.resx">
+      <DependentUpon>CanvasSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditorStartupForm.de.resx">
+      <DependentUpon>EditorStartupForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\EditorStartupForm.es-MX.resx">
+      <DependentUpon>EditorStartupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditorStartupForm.fa-IR.resx">
+      <DependentUpon>EditorStartupForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditorStartupForm.fr.resx">
       <DependentUpon>EditorStartupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\EditorStartupForm.id-ID.resx">
@@ -364,7 +385,13 @@
     <EmbeddedResource Include="Forms\EditorStartupForm.zh-CN.resx">
       <DependentUpon>EditorStartupForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditorStartupForm.zh-TW.resx">
+      <DependentUpon>EditorStartupForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FFmpegOptionsForm.es-MX.resx">
+      <DependentUpon>FFmpegOptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FFmpegOptionsForm.fa-IR.resx">
       <DependentUpon>FFmpegOptionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FFmpegOptionsForm.id-ID.resx">
@@ -376,7 +403,16 @@
     <EmbeddedResource Include="Forms\FFmpegOptionsForm.uk.resx">
       <DependentUpon>FFmpegOptionsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageInsertForm.de.resx">
+      <DependentUpon>ImageInsertForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ImageInsertForm.es-MX.resx">
+      <DependentUpon>ImageInsertForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageInsertForm.fa-IR.resx">
+      <DependentUpon>ImageInsertForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageInsertForm.fr.resx">
       <DependentUpon>ImageInsertForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ImageInsertForm.id-ID.resx">
@@ -400,7 +436,19 @@
     <EmbeddedResource Include="Forms\ImageInsertForm.zh-CN.resx">
       <DependentUpon>ImageInsertForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageInsertForm.zh-TW.resx">
+      <DependentUpon>ImageInsertForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageSizeForm.de.resx">
+      <DependentUpon>ImageSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ImageSizeForm.es-MX.resx">
+      <DependentUpon>ImageSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageSizeForm.fa-IR.resx">
+      <DependentUpon>ImageSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageSizeForm.fr.resx">
       <DependentUpon>ImageSizeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ImageSizeForm.id-ID.resx">
@@ -415,7 +463,19 @@
     <EmbeddedResource Include="Forms\ImageSizeForm.zh-CN.resx">
       <DependentUpon>ImageSizeForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ImageSizeForm.zh-TW.resx">
+      <DependentUpon>ImageSizeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewImageForm.de.resx">
+      <DependentUpon>NewImageForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\NewImageForm.es-MX.resx">
+      <DependentUpon>NewImageForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewImageForm.fa-IR.resx">
+      <DependentUpon>NewImageForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewImageForm.fr.resx">
       <DependentUpon>NewImageForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\NewImageForm.id-ID.resx">
@@ -448,10 +508,16 @@
     <EmbeddedResource Include="Forms\NewImageForm.zh-CN.resx">
       <DependentUpon>NewImageForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewImageForm.zh-TW.resx">
+      <DependentUpon>NewImageForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ScrollingCaptureForm.de.resx">
       <DependentUpon>ScrollingCaptureForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ScrollingCaptureForm.es-MX.resx">
+      <DependentUpon>ScrollingCaptureForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ScrollingCaptureForm.fa-IR.resx">
       <DependentUpon>ScrollingCaptureForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ScrollingCaptureForm.fr.resx">
@@ -496,6 +562,12 @@
     <EmbeddedResource Include="Forms\StickerForm.es-MX.resx">
       <DependentUpon>StickerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StickerForm.fa-IR.resx">
+      <DependentUpon>StickerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StickerForm.fr.resx">
+      <DependentUpon>StickerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\StickerForm.ko-KR.resx">
       <DependentUpon>StickerForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -514,7 +586,16 @@
     <EmbeddedResource Include="Forms\StickerForm.zh-CN.resx">
       <DependentUpon>StickerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StickerForm.zh-TW.resx">
+      <DependentUpon>StickerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\StickerPackForm.es-MX.resx">
+      <DependentUpon>StickerPackForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StickerPackForm.fa-IR.resx">
+      <DependentUpon>StickerPackForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StickerPackForm.fr.resx">
       <DependentUpon>StickerPackForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\StickerPackForm.ko-KR.resx">
@@ -535,7 +616,16 @@
     <EmbeddedResource Include="Forms\StickerPackForm.zh-CN.resx">
       <DependentUpon>StickerPackForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StickerPackForm.zh-TW.resx">
+      <DependentUpon>StickerPackForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TextDrawingInputBox.de.resx">
+      <DependentUpon>TextDrawingInputBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\TextDrawingInputBox.es-MX.resx">
+      <DependentUpon>TextDrawingInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TextDrawingInputBox.fa-IR.resx">
       <DependentUpon>TextDrawingInputBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TextDrawingInputBox.fr.resx">
@@ -578,6 +668,7 @@
     <EmbeddedResource Include="Properties\Resources.es.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.fa-IR.resx" />
     <EmbeddedResource Include="Properties\Resources.fr.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -644,7 +735,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ImageListView">
-      <Version>11.0.4</Version>
+      <Version>13.4.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

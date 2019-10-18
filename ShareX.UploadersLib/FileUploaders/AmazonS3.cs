@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -32,7 +32,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Windows.Forms;
 
 namespace ShareX.UploadersLib.FileUploaders
@@ -120,7 +119,7 @@ namespace ShareX.UploadersLib.FileUploaders
             string scope = URLHelpers.CombineURL(credentialDate, region, "s3", "aws4_request");
             string credential = URLHelpers.CombineURL(Settings.AccessKeyID, scope);
             string timeStamp = DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
-            string contentType = UploadHelpers.GetMimeType(fileName);
+            string contentType = RequestHelpers.GetMimeType(fileName);
             string hashedPayload;
 
             if (Settings.SignedPayload)
@@ -132,14 +131,10 @@ namespace ShareX.UploadersLib.FileUploaders
                 hashedPayload = "UNSIGNED-PAYLOAD";
             }
 
-            if ((Settings.RemoveExtensionImage && Helpers.IsImageFile(fileName)) ||
-                (Settings.RemoveExtensionText && Helpers.IsTextFile(fileName)) ||
-                (Settings.RemoveExtensionVideo && Helpers.IsVideoFile(fileName)))
-            {
-                fileName = Path.GetFileNameWithoutExtension(fileName);
-            }
-
             string uploadPath = GetUploadPath(fileName);
+            string resultURL = GenerateURL(uploadPath);
+
+            OnEarlyURLCopyRequested(resultURL);
 
             NameValueCollection headers = new NameValueCollection
             {
@@ -194,21 +189,15 @@ namespace ShareX.UploadersLib.FileUploaders
             string url = URLHelpers.CombineURL(host, canonicalURI);
             url = URLHelpers.ForcePrefix(url, "https://");
 
-            using (HttpWebResponse response = GetResponse(HttpMethod.PUT, url, stream, contentType, null, headers))
-            {
-                if (response != null)
-                {
-                    NameValueCollection responseHeaders = response.Headers;
+            SendRequest(HttpMethod.PUT, url, stream, contentType, null, headers);
 
-                    if (responseHeaders != null && responseHeaders["ETag"] != null)
-                    {
-                        return new UploadResult
-                        {
-                            IsSuccess = true,
-                            URL = GenerateURL(uploadPath)
-                        };
-                    }
-                }
+            if (LastResponseInfo != null && LastResponseInfo.IsSuccess)
+            {
+                return new UploadResult
+                {
+                    IsSuccess = true,
+                    URL = resultURL
+                };
             }
 
             Errors.Add("Upload to Amazon S3 failed.");
@@ -259,6 +248,14 @@ namespace ShareX.UploadersLib.FileUploaders
         private string GetUploadPath(string fileName)
         {
             string path = NameParser.Parse(NameParserType.FolderPath, Settings.ObjectPrefix.Trim('/'));
+
+            if ((Settings.RemoveExtensionImage && Helpers.IsImageFile(fileName)) ||
+                (Settings.RemoveExtensionText && Helpers.IsTextFile(fileName)) ||
+                (Settings.RemoveExtensionVideo && Helpers.IsVideoFile(fileName)))
+            {
+                fileName = Path.GetFileNameWithoutExtension(fileName);
+            }
+
             return URLHelpers.CombineURL(path, fileName);
         }
 
@@ -266,7 +263,7 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             if (!string.IsNullOrEmpty(Settings.Endpoint) && !string.IsNullOrEmpty(Settings.Bucket))
             {
-                uploadPath = URLHelpers.URLEncode(uploadPath, true);
+                uploadPath = URLHelpers.URLEncodeIgnoreEmoji(uploadPath, true);
 
                 string url;
 

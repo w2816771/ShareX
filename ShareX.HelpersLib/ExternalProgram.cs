@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -26,6 +26,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ShareX.HelpersLib
 {
@@ -51,21 +52,20 @@ namespace ShareX.HelpersLib
             Path = path;
         }
 
-        public ExternalProgram(string name, string path, string args) : this(name, path)
+        public string GetFullPath()
         {
-            if (!string.IsNullOrEmpty(args))
-            {
-                Args += " " + args;
-            }
+            return Helpers.ExpandFolderVariables(Path);
         }
 
         public string Run(string inputPath)
         {
-            if (!string.IsNullOrEmpty(Path) && File.Exists(Path) && !string.IsNullOrWhiteSpace(inputPath))
+            string path = GetFullPath();
+
+            if (!string.IsNullOrEmpty(path) && File.Exists(path) && !string.IsNullOrWhiteSpace(inputPath))
             {
                 inputPath = inputPath.Trim('"');
 
-                if (CheckExtension(inputPath, Extensions))
+                if (CheckExtension(inputPath))
                 {
                     try
                     {
@@ -98,7 +98,7 @@ namespace ShareX.HelpersLib
                         {
                             ProcessStartInfo psi = new ProcessStartInfo()
                             {
-                                FileName = Path,
+                                FileName = path,
                                 Arguments = arguments,
                                 UseShellExecute = false,
                                 CreateNoWindow = HiddenWindow
@@ -133,7 +133,17 @@ namespace ShareX.HelpersLib
             return inputPath;
         }
 
-        private bool CheckExtension(string path, string extensions)
+        public async Task<string> RunAsync(string inputPath)
+        {
+            return await Task.Run(() => Run(inputPath));
+        }
+
+        public bool CheckExtension(string path)
+        {
+            return CheckExtension(path, Extensions);
+        }
+
+        public bool CheckExtension(string path, string extensions)
         {
             if (!string.IsNullOrWhiteSpace(path))
             {

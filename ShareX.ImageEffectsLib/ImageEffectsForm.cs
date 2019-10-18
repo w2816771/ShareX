@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -37,8 +37,8 @@ namespace ShareX.ImageEffectsLib
     {
         public event Action<Image> ImageProcessRequested;
 
-        public Image DefaultImage { get; private set; }
-
+        public bool AutoGeneratePreviewImage { get; set; }
+        public Image PreviewImage { get; private set; }
         public List<ImageEffectPreset> Presets { get; private set; }
         public int SelectedPresetIndex { get; private set; }
 
@@ -48,13 +48,20 @@ namespace ShareX.ImageEffectsLib
         public ImageEffectsForm(Image img, List<ImageEffectPreset> presets, int selectedPresetIndex)
         {
             InitializeComponent();
-            Icon = ShareXResources.Icon;
-            DefaultImage = img;
+            ShareXResources.ApplyTheme(this);
+
+            PreviewImage = img;
+            if (PreviewImage == null)
+            {
+                AutoGeneratePreviewImage = true;
+            }
+
             Presets = presets;
             if (Presets.Count == 0)
             {
                 Presets.Add(new ImageEffectPreset());
             }
+
             SelectedPresetIndex = selectedPresetIndex;
             eiImageEffects.ObjectType = typeof(ImageEffectPreset);
             AddAllEffectsToContextMenu();
@@ -131,6 +138,7 @@ namespace ShareX.ImageEffectsLib
                 typeof(Reflection),
                 typeof(Shadow),
                 typeof(Sharpen),
+                typeof(Slice),
                 typeof(Smooth),
                 typeof(TornEdge));
         }
@@ -204,27 +212,35 @@ namespace ShareX.ImageEffectsLib
             {
                 ImageEffectPreset preset = GetSelectedPreset();
 
-                if (preset != null && DefaultImage != null)
+                if (preset != null)
                 {
                     Cursor = Cursors.WaitCursor;
 
                     try
                     {
-                        Stopwatch timer = Stopwatch.StartNew();
-
-                        using (Image preview = ApplyEffects())
+                        if (AutoGeneratePreviewImage)
                         {
-                            if (preview != null)
+                            GeneratePreviewImage(25);
+                        }
+
+                        if (PreviewImage != null)
+                        {
+                            Stopwatch timer = Stopwatch.StartNew();
+
+                            using (Image preview = ApplyEffects())
                             {
-                                pbResult.LoadImage(preview);
-                                Text = string.Format("ShareX - " + Resources.ImageEffectsForm_UpdatePreview_Image_effects___Width___0___Height___1___Render_time___2__ms,
-                                    preview.Width, preview.Height, timer.ElapsedMilliseconds);
-                            }
-                            else
-                            {
-                                pbResult.Reset();
-                                Text = string.Format("ShareX - " + Resources.ImageEffectsForm_UpdatePreview_Image_effects___Width___0___Height___1___Render_time___2__ms,
-                                    0, 0, timer.ElapsedMilliseconds);
+                                if (preview != null)
+                                {
+                                    pbResult.LoadImage(preview);
+                                    Text = string.Format("ShareX - " + Resources.ImageEffectsForm_UpdatePreview_Image_effects___Width___0___Height___1___Render_time___2__ms,
+                                        preview.Width, preview.Height, timer.ElapsedMilliseconds);
+                                }
+                                else
+                                {
+                                    pbResult.Reset();
+                                    Text = string.Format("ShareX - " + Resources.ImageEffectsForm_UpdatePreview_Image_effects___Width___0___Height___1___Render_time___2__ms,
+                                        0, 0, timer.ElapsedMilliseconds);
+                                }
                             }
                         }
                     }
@@ -245,13 +261,59 @@ namespace ShareX.ImageEffectsLib
             btnClear.Enabled = lvEffects.Items.Count > 0;
         }
 
+        private void GeneratePreviewImage(int padding)
+        {
+            if (pbResult.ClientSize.Width > 0 && pbResult.ClientSize.Height > 0)
+            {
+                int horizontalPadding = padding, verticalPadding = padding;
+                int minSizePadding = 300;
+
+                if (pbResult.ClientSize.Width < (horizontalPadding * 2) + minSizePadding)
+                {
+                    horizontalPadding = 0;
+                }
+
+                if (pbResult.ClientSize.Height < (verticalPadding * 2) + minSizePadding)
+                {
+                    verticalPadding = 0;
+                }
+
+                if (PreviewImage != null) PreviewImage.Dispose();
+                PreviewImage = new Bitmap(pbResult.ClientSize.Width - (horizontalPadding * 2), pbResult.ClientSize.Height - (verticalPadding * 2));
+
+                Color backgroundColor;
+
+                if (ShareXResources.UseDarkTheme)
+                {
+                    backgroundColor = ShareXResources.Theme.BackgroundColor;
+                }
+                else
+                {
+                    backgroundColor = Color.DarkGray;
+                }
+
+                using (Graphics g = Graphics.FromImage(PreviewImage))
+                {
+                    g.Clear(backgroundColor);
+
+                    if (PreviewImage.Width > 260 && PreviewImage.Height > 260)
+                    {
+                        using (Image logo = ShareXResources.Logo)
+                        {
+                            g.DrawImage(logo, (PreviewImage.Width / 2) - (logo.Width / 2), (PreviewImage.Height / 2) - (logo.Height / 2));
+                        }
+                    }
+                }
+            }
+        }
+
         private Image ApplyEffects()
         {
             ImageEffectPreset preset = GetSelectedPreset();
 
             if (preset != null)
             {
-                return preset.ApplyEffects(DefaultImage);
+                return preset.ApplyEffects(PreviewImage);
             }
 
             return null;
@@ -455,6 +517,11 @@ namespace ShareX.ImageEffectsLib
             }
         }
 
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            UpdatePreview();
+        }
+
         private void lvEffects_ItemMoved(object sender, int oldIndex, int newIndex)
         {
             ImageEffectPreset preset = GetSelectedPreset();
@@ -534,8 +601,8 @@ namespace ShareX.ImageEffectsLib
 
             if (!string.IsNullOrEmpty(filePath))
             {
-                if (DefaultImage != null) DefaultImage.Dispose();
-                DefaultImage = ImageHelpers.LoadImage(filePath);
+                if (PreviewImage != null) PreviewImage.Dispose();
+                PreviewImage = ImageHelpers.LoadImage(filePath);
                 UpdatePreview();
             }
         }
@@ -546,15 +613,15 @@ namespace ShareX.ImageEffectsLib
 
             if (img != null)
             {
-                if (DefaultImage != null) DefaultImage.Dispose();
-                DefaultImage = img;
+                if (PreviewImage != null) PreviewImage.Dispose();
+                PreviewImage = img;
                 UpdatePreview();
             }
         }
 
         private void btnSaveImage_Click(object sender, EventArgs e)
         {
-            if (DefaultImage != null)
+            if (PreviewImage != null)
             {
                 using (Image img = ApplyEffects())
                 {
@@ -568,7 +635,7 @@ namespace ShareX.ImageEffectsLib
 
         private void btnUploadImage_Click(object sender, EventArgs e)
         {
-            if (DefaultImage != null)
+            if (PreviewImage != null)
             {
                 Image img = ApplyEffects();
 
@@ -601,8 +668,8 @@ namespace ShareX.ImageEffectsLib
                 {
                     if (Helpers.IsImageFile(files[0]))
                     {
-                        if (DefaultImage != null) DefaultImage.Dispose();
-                        DefaultImage = ImageHelpers.LoadImage(files[0]);
+                        if (PreviewImage != null) PreviewImage.Dispose();
+                        PreviewImage = ImageHelpers.LoadImage(files[0]);
                         UpdatePreview();
                     }
                 }
@@ -613,8 +680,8 @@ namespace ShareX.ImageEffectsLib
 
                 if (img != null)
                 {
-                    if (DefaultImage != null) DefaultImage.Dispose();
-                    DefaultImage = img;
+                    if (PreviewImage != null) PreviewImage.Dispose();
+                    PreviewImage = img;
                     UpdatePreview();
                 }
             }

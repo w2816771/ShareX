@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -33,8 +33,6 @@ namespace ShareX.ScreenCaptureLib
 {
     public abstract class BaseShape : IDisposable
     {
-        protected const int MinimumSize = 3;
-
         public abstract ShapeCategory ShapeCategory { get; }
 
         public abstract ShapeType ShapeType { get; }
@@ -93,7 +91,11 @@ namespace ShareX.ScreenCaptureLib
 
         public Size InitialSize { get; set; }
 
-        public virtual bool IsValidShape => !Rectangle.IsEmpty && Rectangle.Width >= MinimumSize && Rectangle.Height >= MinimumSize;
+        public virtual bool IsValidShape => !Rectangle.IsEmpty && Rectangle.Width >= Options.MinimumSize && Rectangle.Height >= Options.MinimumSize;
+
+        public virtual bool IsSelectable => Manager.CurrentTool == ShapeType || Manager.CurrentTool == ShapeType.ToolSelect;
+
+        public bool ForceProportionalResizing { get; protected set; }
 
         internal ShapeManager Manager { get; set; }
 
@@ -103,6 +105,21 @@ namespace ShareX.ScreenCaptureLib
 
         private Point tempNodePos, tempStartPos, tempEndPos;
         private Rectangle tempRectangle;
+
+        public bool IsHandledBySelectTool
+        {
+            get
+            {
+                switch (ShapeCategory)
+                {
+                    case ShapeCategory.Drawing:
+                    case ShapeCategory.Effect:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
 
         public virtual bool Intersects(Point position)
         {
@@ -140,7 +157,7 @@ namespace ShareX.ScreenCaptureLib
             Manager.NodesVisible = true;
         }
 
-        public void Remove()
+        public virtual void Remove()
         {
             Manager.DeleteShape(this);
         }
@@ -229,7 +246,7 @@ namespace ShareX.ScreenCaptureLib
                     StartPosition = StartPosition.Add(InputManager.MouseVelocity);
                 }
 
-                if (Manager.IsProportionalResizing)
+                if (Manager.IsProportionalResizing || ForceProportionalResizing)
                 {
                     float degree, startDegree;
 

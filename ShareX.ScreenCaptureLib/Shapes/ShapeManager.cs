@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -68,8 +68,10 @@ namespace ShareX.ScreenCaptureLib
             {
                 return currentTool;
             }
-            private set
+            set
             {
+                if (currentTool == value) return;
+
                 currentTool = value;
 
                 if (Form.IsAnnotationMode)
@@ -90,7 +92,22 @@ namespace ShareX.ScreenCaptureLib
                     ClearTools();
                 }
 
-                DeselectCurrentShape();
+                if (CurrentShape != null)
+                {
+                    // do not keep selection if select tool does not handle it
+                    if (currentTool == ShapeType.ToolSelect)
+                    {
+                        if (!CurrentShape.IsHandledBySelectTool)
+                        {
+                            DeselectCurrentShape();
+                        }
+                    }
+                    // do not keep selection if we switch away from a tool and the selected shape does not match the new type
+                    else if (CurrentShape.ShapeType != currentTool)
+                    {
+                        DeselectCurrentShape();
+                    }
+                }
 
                 OnCurrentShapeTypeChanged(currentTool);
             }
@@ -166,6 +183,7 @@ namespace ShareX.ScreenCaptureLib
         // Is holding Alt?
         public bool IsSnapResizing { get; private set; }
         public bool IsRenderingOutput { get; private set; }
+        public Point RenderOffset { get; private set; }
         public bool IsModified { get; internal set; }
 
         public InputManager InputManager { get; private set; } = new InputManager();
@@ -399,6 +417,36 @@ namespace ShareX.ScreenCaptureLib
             }
         }
 
+        public bool HandleEscape()
+        {
+            // the escape key handling has 3 stages:
+            // 1. initiate exit if region selection is active
+            // 2. if a shape is selected, unselect it
+            // 3. switch to the select tool if a any other tool is active
+
+            switch (CurrentTool)
+            {
+                case ShapeType.RegionRectangle:
+                case ShapeType.RegionEllipse:
+                case ShapeType.RegionFreehand:
+                    return false;
+            }
+
+            if (CurrentShape != null)
+            {
+                ClearTools();
+                DeselectCurrentShape();
+            }
+
+            if (CurrentTool != ShapeType.ToolSelect)
+            {
+                CurrentTool = ShapeType.ToolSelect;
+                return true;
+            }
+
+            return false;
+        }
+
         private void form_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -543,9 +591,8 @@ namespace ShareX.ScreenCaptureLib
                         case Keys.PageDown:
                             MoveCurrentShapeDown();
                             break;
-                        case Keys.Q:
-                            Options.QuickCrop = !Options.QuickCrop;
-                            tsmiQuickCrop.Checked = !Options.QuickCrop;
+                        case Keys.M:
+                            CurrentTool = ShapeType.ToolSelect;
                             break;
                     }
                 }
@@ -571,6 +618,16 @@ namespace ShareX.ScreenCaptureLib
                             break;
                         case Keys.Control | Keys.P:
                             Form.OnPrintImageRequested();
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (e.KeyData)
+                    {
+                        case Keys.Q:
+                            Options.QuickCrop = !Options.QuickCrop;
+                            tsmiQuickCrop.Checked = !Options.QuickCrop;
                             break;
                     }
                 }
@@ -770,15 +827,21 @@ namespace ShareX.ScreenCaptureLib
 
             BaseShape shape = GetIntersectShape();
 
-            if (shape != null && shape.ShapeType == CurrentTool) // Select shape
+            if (shape != null && shape.IsSelectable) // Select shape
             {
+                DeselectCurrentShape();
                 IsMoving = true;
                 shape.OnMoving();
                 Form.Cursor = Cursors.SizeAll;
                 CurrentShape = shape;
                 SelectCurrentShape();
             }
-            else if (!IsCreating) // Create new shape
+            else if (shape == null && CurrentTool == ShapeType.ToolSelect)
+            {
+                ClearTools();
+                DeselectCurrentShape();
+            }
+            else if (!IsCreating && CurrentTool != ShapeType.ToolSelect) // Create new shape
             {
                 ClearTools();
                 DeselectCurrentShape();
@@ -832,13 +895,19 @@ namespace ShareX.ScreenCaptureLib
                             shape.OnCreated();
 
                             OnShapeCreated(shape);
+
+                            SelectCurrentShape();
+
+                            if (Options.SwitchToSelectionToolAfterDrawing && shape.IsHandledBySelectTool)
+                            {
+                                CurrentTool = ShapeType.ToolSelect;
+                            }
                         }
                         else if (wasMoving)
                         {
                             shape.OnMoved();
+                            SelectCurrentShape();
                         }
-
-                        SelectCurrentShape();
                     }
                 }
             }
@@ -988,6 +1057,9 @@ namespace ShareX.ScreenCaptureLib
                 case ShapeType.DrawingStep:
                     shape = new StepDrawingShape();
                     break;
+                case ShapeType.DrawingMagnify:
+                    shape = new MagnifyDrawingShape();
+                    break;
                 case ShapeType.DrawingImage:
                     shape = new ImageFileDrawingShape();
                     break;
@@ -1105,6 +1177,7 @@ namespace ShareX.ScreenCaptureLib
                         case ShapeType.DrawingImage:
                         case ShapeType.DrawingSticker:
                         case ShapeType.DrawingCursor:
+                        case ShapeType.ToolSelect:
                             return null;
                     }
 
@@ -1112,10 +1185,10 @@ namespace ShareX.ScreenCaptureLib
                     {
                         Point location = InputManager.ClientMousePosition;
 
-                        return new RectangleRegionShape()
-                        {
-                            Rectangle = new Rectangle(new Point(location.X - (Options.FixedSize.Width / 2), location.Y - (Options.FixedSize.Height / 2)), Options.FixedSize)
-                        };
+                        BaseShape rectangleRegionShape = CreateShape(ShapeType.RegionRectangle);
+                        rectangleRegionShape.Rectangle = new Rectangle(new Point(location.X - (Options.FixedSize.Width / 2),
+                            location.Y - (Options.FixedSize.Height / 2)), Options.FixedSize);
+                        return rectangleRegionShape;
                     }
                     else
                     {
@@ -1125,10 +1198,9 @@ namespace ShareX.ScreenCaptureLib
                         {
                             Rectangle hoverArea = CaptureHelpers.ScreenToClient(window.Rectangle);
 
-                            return new RectangleRegionShape()
-                            {
-                                Rectangle = Rectangle.Intersect(Form.ClientArea, hoverArea)
-                            };
+                            BaseShape rectangleRegionShape = CreateShape(ShapeType.RegionRectangle);
+                            rectangleRegionShape.Rectangle = Rectangle.Intersect(Form.ClientArea, hoverArea);
+                            return rectangleRegionShape;
                         }
                     }
                 }
@@ -1174,6 +1246,7 @@ namespace ShareX.ScreenCaptureLib
             if (DrawingShapes.Length > 0 || EffectShapes.Length > 0)
             {
                 IsRenderingOutput = true;
+                RenderOffset = offset;
 
                 MoveAll(-offset.X, -offset.Y);
 
@@ -1198,6 +1271,7 @@ namespace ShareX.ScreenCaptureLib
 
                 MoveAll(offset);
 
+                RenderOffset = Point.Empty;
                 IsRenderingOutput = false;
             }
 
@@ -1209,6 +1283,11 @@ namespace ShareX.ScreenCaptureLib
             if (shape != null)
             {
                 shape.ShowNodes();
+
+                if (Options.SwitchToDrawingToolAfterSelection)
+                {
+                    CurrentTool = shape.ShapeType;
+                }
             }
         }
 
@@ -1311,7 +1390,7 @@ namespace ShareX.ScreenCaptureLib
                 {
                     BaseShape shape = Shapes[i];
 
-                    if (shape.ShapeType == CurrentTool && shape.Intersects(position))
+                    if (shape.IsSelectable && shape.Intersects(position))
                     {
                         return shape;
                     }

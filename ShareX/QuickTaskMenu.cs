@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -42,6 +42,11 @@ namespace ShareX
                 Font = new Font("Arial", 10f),
                 AutoClose = false
             };
+
+            if (ShareXResources.ExperimentalDarkTheme)
+            {
+                cms.Renderer = new ToolStripDarkRenderer();
+            }
 
             cms.KeyUp += (sender, e) =>
             {

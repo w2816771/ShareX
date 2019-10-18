@@ -213,4 +213,40 @@
   <data name="HistoryManager_GetHistoryItems_Error_occured_while_reading_XML_file___0_" xml:space="preserve">
     <value>Fehler beim Lesen der XML Datei: {0}</value>
   </data>
+  <data name="HistoryItemManager_InitializeComponent_Markdown__link" xml:space="preserve">
+    <value>Markdown-Link</value>
+  </data>
+  <data name="HistoryItemManager_InitializeComponent_Markdown__image" xml:space="preserve">
+    <value>Markdown-Bild</value>
+  </data>
+  <data name="HistoryItemManager_InitializeComponent_Markdown__linked_image" xml:space="preserve">
+    <value>Markdown verlinktes Bild</value>
+  </data>
+  <data name="HistoryItemManager_InitializeComponent_UploadFile" xml:space="preserve">
+    <value>Datei hochladen</value>
+  </data>
+  <data name="HistoryItemManager_InitializeComponent_EditImage" xml:space="preserve">
+    <value>Bild bearbeiten...</value>
+  </data>
+  <data name="BtnShowStats_ShowStats" xml:space="preserve">
+    <value>Statistiken anzeigen</value>
+  </data>
+  <data name="BtnShowStats_HideStats" xml:space="preserve">
+    <value>Statistiken ausblenden</value>
+  </data>
+  <data name="HistoryItemCounts" xml:space="preserve">
+    <value>Anzahl der Historie-Elemente:</value>
+  </data>
+  <data name="HistoryStats_Total" xml:space="preserve">
+    <value>Insgesamt:</value>
+  </data>
+  <data name="HistoryStats_YearlyUsages" xml:space="preserve">
+    <value>Jährliche Nutzungen:</value>
+  </data>
+  <data name="HistoryStats_FileExtensions" xml:space="preserve">
+    <value>Dateiendungen:</value>
+  </data>
+  <data name="HistoryStats_Hosts" xml:space="preserve">
+    <value>Hosts:</value>
+  </data>
 </root>

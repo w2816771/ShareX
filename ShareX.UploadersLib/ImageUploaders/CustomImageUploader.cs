@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ using ShareX.HelpersLib;
 using ShareX.UploadersLib.Properties;
 using System;
 using System.IO;
-using System.Windows.Forms;
 
 namespace ShareX.UploadersLib.ImageUploaders
 {
@@ -62,8 +61,6 @@ namespace ShareX.UploadersLib.ImageUploaders
 
             return null;
         }
-
-        public override TabPage GetUploadersConfigTabPage(UploadersConfigForm form) => form.tpCustomUploaders;
     }
 
     public sealed class CustomImageUploader : ImageUploader
@@ -80,24 +77,24 @@ namespace ShareX.UploadersLib.ImageUploaders
             UploadResult result = new UploadResult();
             CustomUploaderInput input = new CustomUploaderInput(fileName, "");
 
-            if (uploader.RequestFormat == CustomUploaderRequestFormat.MultipartFormData)
+            if (uploader.Body == CustomUploaderBody.MultipartFormData)
             {
-                result = SendRequestFile(uploader.GetRequestURL(input), stream, fileName, uploader.GetFileFormName(),
-                    uploader.GetArguments(input), uploader.GetHeaders(input), null, uploader.ResponseType, uploader.RequestType);
+                result = SendRequestFile(uploader.GetRequestURL(input), stream, fileName, uploader.GetFileFormName(), uploader.GetArguments(input),
+                    uploader.GetHeaders(input), null, uploader.RequestMethod);
             }
-            else if (uploader.RequestFormat == CustomUploaderRequestFormat.Binary)
+            else if (uploader.Body == CustomUploaderBody.Binary)
             {
-                result.Response = SendRequest(uploader.RequestType, uploader.GetRequestURL(input), stream, UploadHelpers.GetMimeType(fileName),
-                    uploader.GetArguments(input), uploader.GetHeaders(input), null, uploader.ResponseType);
+                result.Response = SendRequest(uploader.RequestMethod, uploader.GetRequestURL(input), stream, RequestHelpers.GetMimeType(fileName),
+                    null, uploader.GetHeaders(input));
             }
             else
             {
-                throw new Exception("Unsupported request format: " + uploader.RequestFormat);
+                throw new Exception("Unsupported request format: " + uploader.Body);
             }
 
             try
             {
-                uploader.ParseResponse(result, input);
+                uploader.ParseResponse(result, LastResponseInfo, input);
             }
             catch (Exception e)
             {

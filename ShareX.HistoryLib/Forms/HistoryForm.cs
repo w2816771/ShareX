@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace ShareX.HistoryLib
@@ -43,6 +44,7 @@ namespace ShareX.HistoryLib
         private HistoryItemManager him;
         private HistoryItem[] allHistoryItems;
         private string defaultTitle;
+        private bool showingStats;
 
         public HistoryForm(string historyPath, HistorySettings settings, Action<string> uploadFile = null, Action<string> editImage = null)
         {
@@ -50,7 +52,7 @@ namespace ShareX.HistoryLib
             Settings = settings;
 
             InitializeComponent();
-            Icon = ShareXResources.Icon;
+
             defaultTitle = Text;
             UpdateTitle();
 
@@ -67,6 +69,7 @@ namespace ShareX.HistoryLib
 
             him = new HistoryItemManager(uploadFile, editImage);
             him.GetHistoryItems += him_GetHistoryItems;
+            lvHistory.ContextMenuStrip = him.cmsHistory;
 
             pbThumbnail.Reset();
             lvHistory.FillLastColumn();
@@ -76,6 +79,8 @@ namespace ShareX.HistoryLib
                 scMain.SplitterDistance = Settings.SplitterDistance;
             }
 
+            ShareXResources.ApplyTheme(this);
+
             Settings.WindowState.AutoHandleFormState(this);
         }
 
@@ -83,6 +88,61 @@ namespace ShareX.HistoryLib
         {
             allHistoryItems = GetHistoryItems();
             ApplyFiltersAndAdd();
+        }
+
+        private void OutputStats(HistoryItem[] historyItems)
+        {
+            rtbStats.ResetText();
+
+            rtbStats.SetFontBold();
+            rtbStats.AppendLine(Resources.HistoryItemCounts);
+            rtbStats.SetFontRegular();
+            rtbStats.AppendLine(Resources.HistoryStats_Total + " " + historyItems.Length);
+
+            IEnumerable<string> types = historyItems.
+                GroupBy(x => x.Type).
+                OrderByDescending(x => x.Count()).
+                Select(x => string.Format("{0}: {1} ({2:N0}%)", x.Key, x.Count(), x.Count() / (float)historyItems.Length * 100));
+
+            rtbStats.AppendLine(string.Join(Environment.NewLine, types));
+
+            rtbStats.AppendLine();
+            rtbStats.SetFontBold();
+            rtbStats.AppendLine(Resources.HistoryStats_YearlyUsages);
+            rtbStats.SetFontRegular();
+
+            IEnumerable<string> yearlyUsages = historyItems.
+                GroupBy(x => x.DateTime.Year).
+                OrderByDescending(x => x.Key).
+                Select(x => string.Format("{0}: {1} ({2:N0}%)", x.Key, x.Count(), x.Count() / (float)historyItems.Length * 100));
+
+            rtbStats.AppendLine(string.Join(Environment.NewLine, yearlyUsages));
+
+            rtbStats.AppendLine();
+            rtbStats.SetFontBold();
+            rtbStats.AppendLine(Resources.HistoryStats_FileExtensions);
+            rtbStats.SetFontRegular();
+
+            IEnumerable<string> fileExtensions = historyItems.
+                Where(x => !string.IsNullOrEmpty(x.Filename) && !x.Filename.EndsWith(")")).
+                Select(x => Helpers.GetFilenameExtension(x.Filename)).
+                GroupBy(x => x).
+                OrderByDescending(x => x.Count()).
+                Select(x => string.Format("{0} ({1})", x.Key, x.Count()));
+
+            rtbStats.AppendLine(string.Join(Environment.NewLine, fileExtensions));
+
+            rtbStats.AppendLine();
+            rtbStats.SetFontBold();
+            rtbStats.AppendLine(Resources.HistoryStats_Hosts);
+            rtbStats.SetFontRegular();
+
+            IEnumerable<string> hosts = historyItems.
+                GroupBy(x => x.Host).
+                OrderByDescending(x => x.Count()).
+                Select(x => string.Format("{0} ({1})", x.Key, x.Count()));
+
+            rtbStats.AppendLine(string.Join(Environment.NewLine, hosts));
         }
 
         private HistoryItem[] him_GetHistoryItems()
@@ -149,7 +209,9 @@ namespace ShareX.HistoryLib
 
             if (!string.IsNullOrEmpty(filenameFilter))
             {
-                result = result.Where(x => x.Filename != null && x.Filename.Contains(filenameFilter, StringComparison.InvariantCultureIgnoreCase));
+                string pattern = Regex.Escape(filenameFilter).Replace("\\?", ".").Replace("\\*", ".*");
+                Regex regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                result = result.Where(x => x.Filename != null && regex.IsMatch(x.Filename));
             }
 
             string urlFilter = txtURLFilter.Text;
@@ -231,11 +293,10 @@ namespace ShareX.HistoryLib
                     status.AppendFormat(" - " + Resources.HistoryForm_UpdateItemCount___Filtered___0_, historyItems.Length.ToString("N0"));
                 }
 
-                IEnumerable<string> types = from hi in historyItems
-                                            group hi by hi.Type
-                                            into t
-                                            let count = t.Count()
-                                            select string.Format(" - {0}: {1:N0}", t.Key, count);
+                IEnumerable<string> types = historyItems.
+                    GroupBy(x => x.Type).
+                    OrderByDescending(x => x.Count()).
+                    Select(x => string.Format(" - {0}: {1}", x.Key, x.Count()));
 
                 foreach (string type in types)
                 {
@@ -337,19 +398,32 @@ namespace ShareX.HistoryLib
             AddHistoryItems(allHistoryItems);
         }
 
+        private void BtnShowStats_Click(object sender, EventArgs e)
+        {
+            if (showingStats)
+            {
+                lvHistory.Visible = true;
+                pStats.Visible = false;
+                btnShowStats.Text = Resources.BtnShowStats_ShowStats;
+                showingStats = false;
+            }
+            else
+            {
+                pStats.Visible = true;
+                lvHistory.Visible = false;
+                btnShowStats.Text = Resources.BtnShowStats_HideStats;
+                Cursor = Cursors.WaitCursor;
+                OutputStats(allHistoryItems);
+                Cursor = Cursors.Default;
+                showingStats = true;
+            }
+        }
+
         private void lvHistory_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             if (e.IsSelected)
             {
                 UpdateControls();
-            }
-        }
-
-        private void lvHistory_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                him.cmsHistory.Show(lvHistory, e.X + 1, e.Y + 1);
             }
         }
 

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -110,7 +110,7 @@ namespace ShareX.UploadersLib.FileUploaders
         public override UploadResult Upload(Stream stream, string fileName)
         {
             string parsedUploadPath = NameParser.Parse(NameParserType.FolderPath, UploadPath);
-            string destinationPath = parsedUploadPath + fileName;
+            string destinationPath = URLHelpers.CombineURL(parsedUploadPath, fileName);
 
             // docs: https://www.backblaze.com/b2/docs/
 
@@ -213,6 +213,12 @@ namespace ShareX.UploadersLib.FileUploaders
                     DebugHelper.WriteLine("B2 uploader: Too Many Requests, trying with same URL.");
                     continue;
                 }
+                else if (uploadResult.RC == 503)
+                {
+                    DebugHelper.WriteLine("B2 uploader: Service Unavailable, trying with new URL.");
+                    url = null;
+                    continue;
+                }
                 else if (uploadResult.RC != 200)
                 {
                     // something else happened that wasn't a success, so bail out
@@ -228,14 +234,17 @@ namespace ShareX.UploadersLib.FileUploaders
                 //         or
                 //           $customUrl/$uploadPath
 
-                string remoteLocation = URLHelpers.CombineURL(auth.downloadUrl, "file", URLHelpers.URLEncode(BucketName), uploadResult.Upload.fileName);
+                string encodedFileName = URLHelpers.URLEncode(uploadResult.Upload.fileName, true);
+                string remoteLocation = URLHelpers.CombineURL(auth.downloadUrl, "file", URLHelpers.URLEncode(BucketName), encodedFileName);
 
                 DebugHelper.WriteLine($"B2 uploader: Successful upload! File should be at: {remoteLocation}");
 
                 if (UseCustomUrl)
                 {
                     string parsedCustomUrl = NameParser.Parse(NameParserType.FolderPath, CustomUrl);
-                    remoteLocation = parsedCustomUrl + uploadResult.Upload.fileName;
+                    remoteLocation = URLHelpers.CombineURL(parsedCustomUrl, encodedFileName);
+                    remoteLocation = URLHelpers.FixPrefix(remoteLocation, "https://");
+
                     DebugHelper.WriteLine($"B2 uploader: But user requested custom URL, which will be: {remoteLocation}");
                 }
 
@@ -260,7 +269,7 @@ namespace ShareX.UploadersLib.FileUploaders
         /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, a <see cref="B2Authorization"/>.</returns>
         private B2Authorization B2ApiAuthorize(string keyId, string key, out string error)
         {
-            NameValueCollection headers = UploadHelpers.CreateAuthenticationHeader(keyId, key);
+            NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(keyId, key);
 
             using (HttpWebResponse res = GetResponse(HttpMethod.GET, B2AuthorizeAccountUrl, headers: headers, allowNon2xxResponses: true))
             {
@@ -270,7 +279,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     return null;
                 }
 
-                string body = UploadHelpers.ResponseToString(res);
+                string body = RequestHelpers.ResponseToString(res);
 
                 error = null;
                 return JsonConvert.DeserializeObject<B2Authorization>(body);
@@ -308,7 +317,7 @@ namespace ShareX.UploadersLib.FileUploaders
                         return null;
                     }
 
-                    string body = UploadHelpers.ResponseToString(res);
+                    string body = RequestHelpers.ResponseToString(res);
 
                     JObject json;
 
@@ -362,7 +371,7 @@ namespace ShareX.UploadersLib.FileUploaders
                         return null;
                     }
 
-                    string body = UploadHelpers.ResponseToString(res);
+                    string body = RequestHelpers.ResponseToString(res);
 
                     error = null;
                     return JsonConvert.DeserializeObject<B2UploadUrl>(body);
@@ -416,7 +425,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 ["X-Bz-Info-b2-content-disposition"] = URLHelpers.URLEncode(contentDisposition.ToString()),
             };
 
-            string contentType = UploadHelpers.GetMimeType(destinationPath);
+            string contentType = RequestHelpers.GetMimeType(destinationPath);
 
             using (HttpWebResponse res = GetResponse(HttpMethod.POST, b2UploadUrl.uploadUrl,
                 contentType: contentType, headers: headers, data: file, allowNon2xxResponses: true))
@@ -433,7 +442,7 @@ namespace ShareX.UploadersLib.FileUploaders
                     return new B2UploadResult((int)res.StatusCode, ParseB2Error(res), null);
                 }
 
-                string body = UploadHelpers.ResponseToString(res);
+                string body = RequestHelpers.ResponseToString(res);
                 DebugHelper.WriteLine($"B2 uploader: B2ApiUploadFile() reports success! '{body}'");
 
                 return new B2UploadResult((int)res.StatusCode, null, JsonConvert.DeserializeObject<B2Upload>(body));
@@ -491,11 +500,11 @@ namespace ShareX.UploadersLib.FileUploaders
         /// <exception cref="IOException">If the response body cannot be read.</exception>
         private static B2Error ParseB2Error(HttpWebResponse res)
         {
-            if (UploadHelpers.IsSuccessfulResponse(res)) return null;
+            if (RequestHelpers.IsSuccessStatusCode(res.StatusCode)) return null;
 
             try
             {
-                string body = UploadHelpers.ResponseToString(res);
+                string body = RequestHelpers.ResponseToString(res);
                 DebugHelper.WriteLine($"B2 uploader: ParseB2Error() got: {body}");
                 B2Error err = JsonConvert.DeserializeObject<B2Error>(body);
                 return err;

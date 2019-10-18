@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 
 using ShareX.HelpersLib;
 using ShareX.HistoryLib;
-using ShareX.ScreenCaptureLib;
 using ShareX.UploadersLib;
 using System;
 using System.Collections.Generic;
@@ -39,6 +38,7 @@ namespace ShareX
     {
         public TaskSettings DefaultTaskSettings = new TaskSettings();
 
+        public DateTime FirstTimeRunDate = DateTime.Now;
         public string FileUploadDefaultDirectory = "";
         public int NameParserAutoIncrementNumber = 0;
         public List<QuickTaskInfo> QuickTaskPresets = QuickTaskInfo.DefaultPresets;
@@ -50,8 +50,11 @@ namespace ShareX
 
         #region Main Form
 
+        public TaskViewMode TaskViewMode = TaskViewMode.ThumbnailView;
         public bool ShowMenu = true;
         public bool ShowColumns = true;
+        public bool ShowThumbnailTitle = true;
+        public ThumbnailTitleLocation ThumbnailTitleLocation = ThumbnailTitleLocation.Top;
         public ImagePreviewVisibility ImagePreview = ImagePreviewVisibility.Automatic;
         public ImagePreviewLocation ImagePreviewLocation = ImagePreviewLocation.Side;
         public int PreviewSplitterDistance = 335;
@@ -69,6 +72,9 @@ namespace ShareX
         public bool SilentRun = false;
         public bool TrayIconProgressEnabled = true;
         public bool TaskbarProgressEnabled = true;
+        public bool UseDarkTheme = true;
+        public bool ExperimentalDarkTheme = false;
+        public bool UseWhiteShareXIcon = false;
         public bool RememberMainFormPosition = false;
         public Point MainFormPosition = Point.Empty;
         public bool RememberMainFormSize = false;
@@ -81,6 +87,13 @@ namespace ShareX
         public bool CheckPreReleaseUpdates = false;
 
         #endregion General
+
+        #region Theme
+
+        public List<ShareXTheme> Themes = new List<ShareXTheme>();
+        public int SelectedTheme = 0;
+
+        #endregion
 
         #region Paths
 
@@ -137,6 +150,12 @@ namespace ShareX
 
         #region Advanced
 
+        [Category("Application"), DefaultValue(true), Description("Automatically check updates.")]
+#if STEAM || WindowsStore
+        [Browsable(false)]
+#endif
+        public bool AutoCheckUpdate { get; set; }
+
         [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]
         public bool BinaryUnits { get; set; }
 
@@ -146,26 +165,11 @@ namespace ShareX
         [Category("Application"), DefaultValue(false), Description("Show only customized tasks in main window workflows.")]
         public bool WorkflowsOnlyShowEdited { get; set; }
 
-        [Category("Application"), DefaultValue(true), Description("Automatically check updates.")]
-#if STEAM || WindowsStore
-        [Browsable(false)]
-#endif
-        public bool AutoCheckUpdate { get; set; }
-
         [Category("Application"), DefaultValue(true), Description("Automatically expand capture menu when you open the tray menu.")]
         public bool TrayAutoExpandCaptureMenu { get; set; }
 
         [Category("Application"), DefaultValue(true), Description("Show tips and hotkeys in main window when task list is empty.")]
         public bool ShowMainWindowTip { get; set; }
-
-        [Category("Application"), DefaultValue(true), Description("Show Patreon button in main window when task list is empty.")]
-        public bool ShowPatreonButton { get; set; }
-
-        [Category("Application"), DefaultValue(true), Description("Show Discord button in main window when task list is empty.")]
-        public bool ShowDiscordButton { get; set; }
-
-        [Category("Application"), DefaultValue(100), Description("Large file size defined in MB. ShareX will warn before uploading large files. 0 disables this feature.")]
-        public int LargeFileSizeWarning { get; set; }
 
         [Category("Application"), DefaultValue(""), Description("URLs will open using this path instead of default browser. Example path: chrome.exe")]
         [Editor(typeof(ExeFileNameEditor), typeof(UITypeEditor))]
@@ -182,6 +186,9 @@ namespace ShareX
 
         [Category("Hotkey"), DefaultValue(false), Description("Disables hotkeys.")]
         public bool DisableHotkeys { get; set; }
+
+        [Category("Hotkey"), DefaultValue(false), Description("If active window is fullscreen then hotkeys won't be executed.")]
+        public bool DisableHotkeysOnFullscreen { get; set; }
 
         private int hotkeyRepeatLimit;
 
@@ -201,12 +208,6 @@ namespace ShareX
         [Category("Clipboard"), DefaultValue(true), Description("Show clipboard content viewer when using clipboard upload in main window.")]
         public bool ShowClipboardContentViewer { get; set; }
 
-        [Category("Clipboard"), DefaultValue(true), Description("Default .NET method can't copy image with alpha channel to clipboard. Alternatively, when this setting is false, ShareX copies \"PNG\" and 32 bit \"DIB\" to clipboard in order to retain image transparency. If you are experiencing issues then set this setting to true to use the default .NET method.")]
-        public bool UseDefaultClipboardCopyImage { get; set; }
-
-        [Category("Clipboard"), DefaultValue(true), Description("Default .NET method can't get image with alpha channel from clipboard. Alternatively, when this setting is false, ShareX checks if clipboard contains \"PNG\" or 32 bit \"DIB\" in order to retain image transparency. If you are experiencing issues then set this setting to true to use the default .NET method.")]
-        public bool UseDefaultClipboardGetImage { get; set; }
-
         [Category("Clipboard"), DefaultValue(true), Description("Because default .NET image copying not supports alpha channel, background of image will be black. This option will fill background white.")]
         public bool DefaultClipboardCopyImageFillBackground { get; set; }
 
@@ -222,14 +223,14 @@ namespace ShareX
         [Category("Upload"), DefaultValue(false), Description("Accept invalid SSL certificates when uploading.")]
         public bool AcceptInvalidSSLCertificates { get; set; }
 
-        [Category("Upload"), DefaultValue(false), Description("Writes verbose web request logs to \"{PersonalFolder}\\Logs\\ShareX-Request-Logs.txt\" file for debugging purposes.")]
-        public bool VerboseRequestLogs { get; set; }
-
         [Category("Upload"), DefaultValue(true), Description("Show first time upload warning.")]
         public bool ShowUploadWarning { get; set; }
 
         [Category("Upload"), DefaultValue(true), Description("Show more than 10 files upload warning.")]
         public bool ShowMultiUploadWarning { get; set; }
+
+        [Category("Upload"), DefaultValue(100), Description("Large file size defined in MB. ShareX will warn before uploading large files. 0 disables this feature.")]
+        public int ShowLargeFileSizeWarning { get; set; }
 
         [Category("Paths"), Description("Custom uploaders configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting ShareX.")]
         [Editor(typeof(DirectoryNameEditor), typeof(UITypeEditor))]

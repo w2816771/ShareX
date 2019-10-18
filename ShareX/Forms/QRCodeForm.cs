@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -29,7 +29,6 @@ using ShareX.ScreenCaptureLib;
 using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -46,7 +45,7 @@ namespace ShareX
         public QRCodeForm(string text = null)
         {
             InitializeComponent();
-            Icon = ShareXResources.Icon;
+            ShareXResources.ApplyTheme(this);
 
             if (!string.IsNullOrEmpty(text))
             {
@@ -104,6 +103,7 @@ namespace ShareX
 
                 int size = Math.Min(pbQRCode.Width, pbQRCode.Height);
                 pbQRCode.Image = TaskHelpers.CreateQRCode(text, size);
+                pbQRCode.BackColor = Color.White;
             }
         }
 
@@ -219,7 +219,9 @@ namespace ShareX
                 Hide();
                 Thread.Sleep(250);
 
-                using (Image img = RegionCaptureTasks.GetRegionImage(null))
+                TaskSettings taskSettings = TaskSettings.GetDefaultTaskSettings();
+
+                using (Image img = RegionCaptureTasks.GetRegionImage(taskSettings.CaptureSettings.SurfaceOptions))
                 {
                     if (img != null)
                     {

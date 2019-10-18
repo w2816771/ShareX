@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -62,11 +62,11 @@ namespace ShareX
         {
             InitializeComponent();
 
-            DropSize = size.Between(10, 300);
+            DropSize = size.Clamp(10, 300);
             DropOffset = offset;
             DropAlignment = alignment;
-            DropOpacity = opacity.Between(1, 255);
-            DropHoverOpacity = hoverOpacity.Between(1, 255);
+            DropOpacity = opacity.Clamp(1, 255);
+            DropHoverOpacity = hoverOpacity.Clamp(1, 255);
 
             backgroundImage = DrawDropImage(DropSize);
 

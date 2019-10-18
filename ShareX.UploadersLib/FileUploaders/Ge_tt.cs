@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -77,7 +77,7 @@ namespace ShareX.UploadersLib.FileUploaders
             string json = JsonConvert.SerializeObject(args);
 
             string url = URLHelpers.CombineURL(APIURL, "users/login");
-            string response = SendRequest(HttpMethod.POST, url, json, UploadHelpers.ContentTypeJSON);
+            string response = SendRequest(HttpMethod.POST, url, json, RequestHelpers.ContentTypeJSON);
 
             return JsonConvert.DeserializeObject<Ge_ttLogin>(response);
         }
@@ -87,7 +87,7 @@ namespace ShareX.UploadersLib.FileUploaders
             Dictionary<string, string> args = new Dictionary<string, string>();
             args.Add("accesstoken", accessToken);
 
-            string url = URLHelpers.CreateQuery(URLHelpers.CombineURL(APIURL, "shares/create"), args);
+            string url = URLHelpers.CreateQueryString(URLHelpers.CombineURL(APIURL, "shares/create"), args);
             string response = SendRequest(HttpMethod.POST, url);
 
             return JsonConvert.DeserializeObject<Ge_ttShare>(response);
@@ -103,7 +103,7 @@ namespace ShareX.UploadersLib.FileUploaders
 
             string json = JsonConvert.SerializeObject(args2);
 
-            string response = SendRequest(HttpMethod.POST, URLHelpers.CombineURL(APIURL, "files", shareName, "create"), json, UploadHelpers.ContentTypeJSON, args);
+            string response = SendRequest(HttpMethod.POST, URLHelpers.CombineURL(APIURL, "files", shareName, "create"), json, RequestHelpers.ContentTypeJSON, args);
 
             return JsonConvert.DeserializeObject<Ge_ttFile>(response);
         }

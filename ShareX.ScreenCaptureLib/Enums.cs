@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -105,7 +105,11 @@ namespace ShareX.ScreenCaptureLib
         [Description("H.264 AMF (mp4)")]
         h264_amf,
         [Description("HEVC AMF (mp4)")]
-        hevc_amf
+        hevc_amf,
+        [Description("H.264 QuickSync (mp4)")]
+        h264_qsv,
+        [Description("HEVC QuickSync (mp4)")]
+        hevc_qsv
     }
 
     public enum FFmpegPreset
@@ -180,6 +184,24 @@ namespace ShareX.ScreenCaptureLib
         quality = 2
     }
 
+    public enum FFmpegQSVPreset
+    {
+        [Description("Very fast")]
+        veryfast,
+        [Description("Faster")]
+        faster,
+        [Description("Fast")]
+        fast,
+        [Description("Medium")]
+        medium,
+        [Description("Slow")]
+        slow,
+        [Description("Slower")]
+        slower,
+        [Description("Very slow")]
+        veryslow
+    }
+
     public enum FFmpegTune
     {
         film, animation, grain, stillimage, psnr, ssim, fastdecode, zerolatency
@@ -245,6 +267,7 @@ namespace ShareX.ScreenCaptureLib
         RegionRectangle,
         RegionEllipse,
         RegionFreehand,
+        ToolSelect,
         DrawingRectangle,
         DrawingEllipse,
         DrawingFreehand,
@@ -254,6 +277,7 @@ namespace ShareX.ScreenCaptureLib
         DrawingTextBackground,
         DrawingSpeechBalloon,
         DrawingStep,
+        DrawingMagnify,
         DrawingImage,
         DrawingImageScreen,
         DrawingSticker,

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -38,6 +38,7 @@ namespace ShareX.HelpersLib
         public string DownloadLocation { get; private set; }
         public bool IsDownloading { get; private set; }
         public bool IsCanceled { get; private set; }
+        public bool IsPaused { get; private set; }
         public long FileSize { get; private set; }
         public long DownloadedSize { get; private set; }
         public double DownloadSpeed { get; private set; }
@@ -55,12 +56,11 @@ namespace ShareX.HelpersLib
             }
         }
 
-        public Exception LastException { get; private set; }
-        public bool IsPaused { get; private set; }
         public IWebProxy Proxy { get; set; }
         public string AcceptHeader { get; set; }
+        public Exception LastException { get; private set; }
 
-        public event EventHandler FileSizeReceived, DownloadStarted, ProgressChanged, DownloadCompleted, ExceptionThrowed;
+        public event EventHandler FileSizeReceived, DownloadStarted, ProgressChanged, DownloadCompleted, ExceptionThrown;
 
         private BackgroundWorker worker;
         private const int bufferSize = 32768;
@@ -74,7 +74,6 @@ namespace ShareX.HelpersLib
 
             worker = new BackgroundWorker();
             worker.WorkerReportsProgress = true;
-            worker.WorkerSupportsCancellation = true;
             worker.DoWork += worker_DoWork;
             worker.ProgressChanged += worker_ProgressChanged;
             worker.RunWorkerCompleted += worker_RunWorkerCompleted;
@@ -85,33 +84,26 @@ namespace ShareX.HelpersLib
             if (!IsDownloading && !string.IsNullOrEmpty(URL) && !worker.IsBusy)
             {
                 IsDownloading = true;
+                IsCanceled = false;
                 IsPaused = false;
+
                 worker.RunWorkerAsync();
-            }
-        }
-
-        public void ResumeDownload()
-        {
-            if (IsDownloading)
-            {
-                IsPaused = false;
-            }
-        }
-
-        public void PauseDownload()
-        {
-            if (IsDownloading)
-            {
-                IsPaused = true;
             }
         }
 
         public void StopDownload()
         {
-            if (IsDownloading)
-            {
-                IsCanceled = true;
-            }
+            IsCanceled = true;
+        }
+
+        public void PauseDownload()
+        {
+            IsPaused = true;
+        }
+
+        public void ResumeDownload()
+        {
+            IsPaused = false;
         }
 
         private void ThrowEvent(EventHandler eventHandler)
@@ -207,7 +199,23 @@ namespace ShareX.HelpersLib
                 {
                     LastException = ex;
 
-                    ThrowEvent(ExceptionThrowed);
+                    ThrowEvent(ExceptionThrown);
+                }
+            }
+            finally
+            {
+                if (IsCanceled)
+                {
+                    try
+                    {
+                        if (File.Exists(DownloadLocation))
+                        {
+                            File.Delete(DownloadLocation);
+                        }
+                    }
+                    catch
+                    {
+                    }
                 }
             }
         }

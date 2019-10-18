@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@ namespace ShareX.ScreenCaptureLib
 {
     public class RegionCaptureOptions
     {
+        public const int DefaultMinimumSize = 5;
         public const int MagnifierPixelCountMinimum = 3;
         public const int MagnifierPixelCountMaximum = 35;
         public const int MagnifierPixelSizeMinimum = 3;
@@ -41,6 +42,7 @@ namespace ShareX.ScreenCaptureLib
         public const int MoveSpeedMaximum = 10;
 
         public bool QuickCrop = true;
+        public int MinimumSize = DefaultMinimumSize;
         public RegionCaptureAction RegionCaptureActionRightClick = RegionCaptureAction.RemoveShapeCancelCapture;
         public RegionCaptureAction RegionCaptureActionMiddleClick = RegionCaptureAction.SwapToolType;
         public RegionCaptureAction RegionCaptureActionX1Click = RegionCaptureAction.CaptureFullscreen;
@@ -73,6 +75,9 @@ namespace ShareX.ScreenCaptureLib
         public bool MenuCollapsed = false;
         public Point MenuPosition = Point.Empty;
 
+        public bool SwitchToDrawingToolAfterSelection = false;
+        public bool SwitchToSelectionToolAfterDrawing = false;
+
         // Annotation
         public AnnotationOptions AnnotationOptions = new AnnotationOptions();
         public ShapeType LastRegionTool = ShapeType.RegionRectangle;
@@ -83,7 +88,6 @@ namespace ShareX.ScreenCaptureLib
         public ImageEditorStartMode ImageEditorStartMode = ImageEditorStartMode.AutoSize;
         public WindowState ImageEditorWindowState = new WindowState();
         public bool AutoCloseEditorOnTask = false;
-        public Color ImageEditorBackgroundColor = Color.FromArgb(200, 200, 200);
         public bool ShowEditorPanTip = true;
         public ImageEditorInterpolationMode ImageEditorResizeInterpolationMode = ImageEditorInterpolationMode.Bicubic;
         public Size EditorNewImageSize = new Size(800, 600);

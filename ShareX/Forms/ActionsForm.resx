@@ -287,6 +287,7 @@
   </data>
   <data name="btnPathBrowse.Text" xml:space="preserve">
     <value>...</value>
+    <comment>@Invariant</comment>
   </data>
   <data name="&gt;&gt;btnPathBrowse.Name" xml:space="preserve">
     <value>btnPathBrowse</value>
@@ -460,7 +461,7 @@
     <value>True</value>
   </data>
   <data name="cbHiddenWindow.Location" type="System.Drawing.Point, System.Drawing">
-    <value>9, 248</value>
+    <value>8, 248</value>
   </data>
   <data name="cbHiddenWindow.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>

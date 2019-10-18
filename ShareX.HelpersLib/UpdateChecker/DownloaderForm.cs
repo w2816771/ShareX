@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -156,7 +156,7 @@ namespace ShareX.HelpersLib
                         {
                             FileName = DownloadLocation,
                             Arguments = "/UPDATE",
-                            UseShellExecute = false
+                            UseShellExecute = true
                         };
 
                         if (InstallType == InstallType.Silent)
@@ -223,7 +223,7 @@ namespace ShareX.HelpersLib
                 fileDownloader.DownloadStarted += (v1, v2) => ChangeStatus(Resources.DownloaderForm_StartDownload_Downloading_);
                 fileDownloader.ProgressChanged += (v1, v2) => ChangeProgress();
                 fileDownloader.DownloadCompleted += fileDownloader_DownloadCompleted;
-                fileDownloader.ExceptionThrowed += (v1, v2) => ChangeStatus(fileDownloader.LastException.Message);
+                fileDownloader.ExceptionThrown += (v1, v2) => ChangeStatus(fileDownloader.LastException.Message);
                 fileDownloader.StartDownload();
 
                 ChangeStatus(Resources.DownloaderForm_StartDownload_Getting_file_size_);

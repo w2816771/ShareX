@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -23,17 +23,22 @@
 
 #endregion License Information (GPL v3)
 
+using Newtonsoft.Json;
 using ShareX.HelpersLib;
 using ShareX.UploadersLib.Properties;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace ShareX.UploadersLib
 {
     public class CustomUploaderItem
     {
+        [DefaultValue("")]
+        public string Version { get; set; }
+
         [DefaultValue("")]
         public string Name { get; set; }
 
@@ -42,50 +47,47 @@ namespace ShareX.UploadersLib
         [DefaultValue(CustomUploaderDestinationType.None)]
         public CustomUploaderDestinationType DestinationType { get; set; }
 
-        [DefaultValue(HttpMethod.POST)]
-        public HttpMethod RequestType { get; set; }
+        [DefaultValue(HttpMethod.POST), JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public HttpMethod RequestMethod { get; set; } = HttpMethod.POST;
+
+        // For backward compatibility
+        [JsonProperty]
+        private HttpMethod RequestType { set => RequestMethod = value; }
 
         [DefaultValue("")]
         public string RequestURL { get; set; }
 
-        private CustomUploaderRequestFormat requestFormat;
-
-        [DefaultValue(CustomUploaderRequestFormat.None)]
-        public CustomUploaderRequestFormat RequestFormat
-        {
-            get
-            {
-                return CheckRequestFormat(requestFormat);
-            }
-            set
-            {
-                requestFormat = value;
-            }
-        }
-
-        [DefaultValue("")]
-        public string FileFormName { get; set; }
-
-        public bool ShouldSerializeFileFormName() => (RequestFormat == CustomUploaderRequestFormat.None && RequestType == HttpMethod.POST) ||
-            RequestFormat == CustomUploaderRequestFormat.MultipartFormData;
-
-        [DefaultValue("")]
-        public string Data { get; set; }
-
-        public bool ShouldSerializeData() => RequestFormat == CustomUploaderRequestFormat.JSON;
-
         [DefaultValue(null)]
-        public Dictionary<string, string> Arguments { get; set; }
+        public Dictionary<string, string> Parameters { get; set; }
 
-        public bool ShouldSerializeArguments() => Arguments != null && Arguments.Count > 0;
+        public bool ShouldSerializeParameters() => Parameters != null && Parameters.Count > 0;
 
         [DefaultValue(null)]
         public Dictionary<string, string> Headers { get; set; }
 
         public bool ShouldSerializeHeaders() => Headers != null && Headers.Count > 0;
 
-        [DefaultValue(ResponseType.Text)]
-        public ResponseType ResponseType { get; set; }
+        [DefaultValue(CustomUploaderBody.None)]
+        public CustomUploaderBody Body { get; set; }
+
+        [DefaultValue(null)]
+        public Dictionary<string, string> Arguments { get; set; }
+
+        public bool ShouldSerializeArguments() => (Body == CustomUploaderBody.MultipartFormData || Body == CustomUploaderBody.FormURLEncoded) &&
+            Arguments != null && Arguments.Count > 0;
+
+        [DefaultValue("")]
+        public string FileFormName { get; set; }
+
+        public bool ShouldSerializeFileFormName() => Body == CustomUploaderBody.MultipartFormData && !string.IsNullOrEmpty(FileFormName);
+
+        [DefaultValue("")]
+        public string Data { get; set; }
+
+        public bool ShouldSerializeData() => (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML) && !string.IsNullOrEmpty(Data);
+
+        // For backward compatibility
+        public ResponseType ResponseType { private get; set; }
 
         [DefaultValue(null)]
         public List<string> RegexList { get; set; }
@@ -101,8 +103,18 @@ namespace ShareX.UploadersLib
         [DefaultValue("")]
         public string DeletionURL { get; set; }
 
-        public CustomUploaderItem()
+        private CustomUploaderItem()
         {
+        }
+
+        public static CustomUploaderItem Init()
+        {
+            return new CustomUploaderItem()
+            {
+                Version = Application.ProductVersion,
+                RequestMethod = HttpMethod.POST,
+                Body = CustomUploaderBody.MultipartFormData
+            };
         }
 
         public override string ToString()
@@ -136,34 +148,57 @@ namespace ShareX.UploadersLib
 
             CustomUploaderParser parser = new CustomUploaderParser(input);
             parser.URLEncode = true;
-
             string url = parser.Parse(RequestURL);
-            return URLHelpers.FixPrefix(url);
+
+            url = URLHelpers.FixPrefix(url);
+
+            Dictionary<string, string> parameters = GetParameters(input);
+            return URLHelpers.CreateQueryString(url, parameters);
         }
 
-        private CustomUploaderRequestFormat CheckRequestFormat(CustomUploaderRequestFormat format)
+        public Dictionary<string, string> GetParameters(CustomUploaderInput input)
         {
-            // For backward compatibility
-            if (format == CustomUploaderRequestFormat.None)
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            if (Parameters != null)
             {
-                if (RequestType == HttpMethod.POST)
+                CustomUploaderParser parser = new CustomUploaderParser(input);
+                parser.UseNameParser = true;
+
+                foreach (KeyValuePair<string, string> parameter in Parameters)
                 {
-                    return CustomUploaderRequestFormat.MultipartFormData;
-                }
-                else
-                {
-                    return CustomUploaderRequestFormat.URLQueryString;
+                    parameters.Add(parameter.Key, parser.Parse(parameter.Value));
                 }
             }
 
-            return format;
+            return parameters;
+        }
+
+        public string GetContentType()
+        {
+            switch (Body)
+            {
+                case CustomUploaderBody.MultipartFormData:
+                    return RequestHelpers.ContentTypeMultipartFormData;
+                case CustomUploaderBody.FormURLEncoded:
+                    return RequestHelpers.ContentTypeURLEncoded;
+                case CustomUploaderBody.JSON:
+                    return RequestHelpers.ContentTypeJSON;
+                case CustomUploaderBody.XML:
+                    return RequestHelpers.ContentTypeXML;
+                case CustomUploaderBody.Binary:
+                    return RequestHelpers.ContentTypeOctetStream;
+            }
+
+            return null;
         }
 
         public string GetData(CustomUploaderInput input)
         {
             CustomUploaderParser parser = new CustomUploaderParser(input);
             parser.UseNameParser = true;
-            parser.JSONEncode = RequestFormat == CustomUploaderRequestFormat.JSON;
+            parser.JSONEncode = Body == CustomUploaderBody.JSON;
+            parser.XMLEncode = Body == CustomUploaderBody.XML;
 
             return parser.Parse(Data);
         }
@@ -216,36 +251,149 @@ namespace ShareX.UploadersLib
             return null;
         }
 
-        public void ParseResponse(UploadResult result, CustomUploaderInput input, bool isShortenedURL = false)
+        public void ParseResponse(UploadResult result, ResponseInfo responseInfo, CustomUploaderInput input, bool isShortenedURL = false)
         {
-            if (result != null && !string.IsNullOrEmpty(result.Response))
+            if (result != null && responseInfo != null)
             {
-                CustomUploaderParser parser = new CustomUploaderParser(result.Response, RegexList);
-                parser.Filename = input.Filename;
-                parser.URLEncode = true;
+                result.ResponseInfo = responseInfo;
 
-                string url;
-
-                if (!string.IsNullOrEmpty(URL))
+                if (responseInfo.IsSuccess)
                 {
-                    url = parser.Parse(URL);
+                    if (responseInfo.ResponseText == null)
+                    {
+                        responseInfo.ResponseText = "";
+                    }
+
+                    CustomUploaderParser parser = new CustomUploaderParser(responseInfo, RegexList);
+                    parser.Filename = input.Filename;
+                    parser.URLEncode = true;
+
+                    string url;
+
+                    if (!string.IsNullOrEmpty(URL))
+                    {
+                        url = parser.Parse(URL);
+                    }
+                    else
+                    {
+                        url = parser.ResponseInfo.ResponseText;
+                    }
+
+                    if (isShortenedURL)
+                    {
+                        result.ShortenedURL = url;
+                    }
+                    else
+                    {
+                        result.URL = url;
+                    }
+
+                    result.ThumbnailURL = parser.Parse(ThumbnailURL);
+                    result.DeletionURL = parser.Parse(DeletionURL);
+                }
+            }
+        }
+
+        public void CheckBackwardCompatibility()
+        {
+            CheckRequestURL();
+
+            if (string.IsNullOrEmpty(Version) || Helpers.CompareVersion(Version, "12.3.1") <= 0)
+            {
+                if (RequestMethod == HttpMethod.POST)
+                {
+                    Body = CustomUploaderBody.MultipartFormData;
                 }
                 else
                 {
-                    url = parser.Response;
+                    Body = CustomUploaderBody.None;
+
+                    if (Arguments != null)
+                    {
+                        if (Parameters == null)
+                        {
+                            Parameters = new Dictionary<string, string>();
+                        }
+
+                        foreach (KeyValuePair<string, string> pair in Arguments)
+                        {
+                            if (!Parameters.ContainsKey(pair.Key))
+                            {
+                                Parameters.Add(pair.Key, pair.Value);
+                            }
+                        }
+
+                        Arguments = null;
+                    }
                 }
 
-                if (isShortenedURL)
+                if (ResponseType == ResponseType.RedirectionURL)
                 {
-                    result.ShortenedURL = url;
+                    if (string.IsNullOrEmpty(URL))
+                    {
+                        URL = "$responseurl$";
+                    }
+
+                    URL = URL.Replace("$response$", "$responseurl$");
+                    ThumbnailURL = ThumbnailURL?.Replace("$response$", "$responseurl$");
+                    DeletionURL = DeletionURL?.Replace("$response$", "$responseurl$");
                 }
-                else
+                else if (ResponseType == ResponseType.Headers)
                 {
-                    result.URL = url;
+                    URL = "Response type option is deprecated, please use \\$header:header_name\\$ syntax instead.";
+                }
+                else if (ResponseType == ResponseType.LocationHeader)
+                {
+                    if (string.IsNullOrEmpty(URL))
+                    {
+                        URL = "$header:Location$";
+                    }
+
+                    URL = URL.Replace("$response$", "$header:Location$");
+                    ThumbnailURL = ThumbnailURL?.Replace("$response$", "$header:Location$");
+                    DeletionURL = DeletionURL?.Replace("$response$", "$header:Location$");
                 }
 
-                result.ThumbnailURL = parser.Parse(ThumbnailURL);
-                result.DeletionURL = parser.Parse(DeletionURL);
+                ResponseType = ResponseType.Text;
+
+                Version = Application.ProductVersion;
+            }
+        }
+
+        private void CheckRequestURL()
+        {
+            if (!string.IsNullOrEmpty(RequestURL))
+            {
+                NameValueCollection nvc = URLHelpers.ParseQueryString(RequestURL);
+
+                if (nvc != null && nvc.Count > 0)
+                {
+                    if (Parameters == null)
+                    {
+                        Parameters = new Dictionary<string, string>();
+                    }
+
+                    foreach (string key in nvc)
+                    {
+                        if (key == null)
+                        {
+                            foreach (string value in nvc.GetValues(key))
+                            {
+                                if (!Parameters.ContainsKey(value))
+                                {
+                                    Parameters.Add(value, "");
+                                }
+                            }
+                        }
+                        else if (!Parameters.ContainsKey(key))
+                        {
+                            string value = nvc[key];
+                            Parameters.Add(key, value);
+                        }
+                    }
+
+                    RequestURL = URLHelpers.RemoveQueryString(RequestURL);
+                }
             }
         }
     }

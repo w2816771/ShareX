@@ -106,7 +106,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\DirectoryIndexerForm.de.resx">
+      <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\DirectoryIndexerForm.es-MX.resx">
+      <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DirectoryIndexerForm.fa-IR.resx">
+      <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DirectoryIndexerForm.fr.resx">
       <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DirectoryIndexerForm.ko-KR.resx">
@@ -124,6 +133,12 @@
     <EmbeddedResource Include="Forms\DirectoryIndexerForm.vi-VN.resx">
       <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DirectoryIndexerForm.zh-CN.resx">
+      <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DirectoryIndexerForm.zh-TW.resx">
+      <DependentUpon>DirectoryIndexerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
@@ -135,7 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.1</Version>
+      <Version>12.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

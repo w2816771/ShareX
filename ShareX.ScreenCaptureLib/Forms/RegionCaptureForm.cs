@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2019 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -105,6 +105,7 @@ namespace ShareX.ScreenCaptureLib
         private TextAnimation editorPanTipAnimation;
         private Bitmap bmpBackgroundImage;
         private Cursor defaultCursor;
+        private Color canvasBackgroundColor;
 
         public RegionCaptureForm(RegionCaptureMode mode, RegionCaptureOptions options, Image canvas = null)
         {
@@ -149,7 +150,17 @@ namespace ShareX.ScreenCaptureLib
             textOuterBorderPen = new Pen(Color.FromArgb(150, Color.White));
             textInnerBorderPen = new Pen(Color.FromArgb(150, Color.FromArgb(0, 81, 145)));
             markerPen = new Pen(Color.FromArgb(200, Color.Red));
-            canvasBorderPen = new Pen(Color.FromArgb(30, Color.Black));
+
+            if (ShareXResources.UseDarkTheme)
+            {
+                canvasBackgroundColor = ShareXResources.Theme.BackgroundColor;
+                canvasBorderPen = new Pen(ShareXResources.Theme.BorderColor);
+            }
+            else
+            {
+                canvasBackgroundColor = Color.FromArgb(200, 200, 200);
+                canvasBorderPen = new Pen(Color.FromArgb(176, 176, 176));
+            }
 
             Prepare(canvas);
 
@@ -313,7 +324,8 @@ namespace ShareX.ScreenCaptureLib
                 {
                     Rectangle sourceRect = new Rectangle(0, 0, Canvas.Width, Canvas.Height);
 
-                    using (Image checkers = ImageHelpers.DrawCheckers(Canvas.Width, Canvas.Height))
+                    using (Image checkers = ImageHelpers.DrawCheckers(Canvas.Width, Canvas.Height, ShareXResources.Theme.CheckerSize,
+                        ShareXResources.Theme.CheckerColor, ShareXResources.Theme.CheckerColor2))
                     {
                         g.DrawImage(checkers, sourceRect);
                     }
@@ -527,6 +539,11 @@ namespace ShareX.ScreenCaptureLib
         {
             if (e.KeyData == Keys.Escape)
             {
+                if (ShapeManager.HandleEscape())
+                {
+                    return;
+                }
+
                 if (!IsEditorMode || ShowExitConfirmation())
                 {
                     CloseWindow();
@@ -558,7 +575,7 @@ namespace ShareX.ScreenCaptureLib
                     break;
             }
 
-            if (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9)
+            if (!IsEditorMode && e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9)
             {
                 MonitorKey(e.KeyData - Keys.D0);
                 return;
@@ -686,7 +703,7 @@ namespace ShareX.ScreenCaptureLib
 
             if (IsEditorMode && !CanvasRectangle.Contains(ClientArea))
             {
-                g.Clear(Options.ImageEditorBackgroundColor);
+                g.Clear(canvasBackgroundColor);
                 g.DrawRectangleProper(canvasBorderPen, CanvasRectangle.Offset(1));
             }
 
@@ -1179,9 +1196,9 @@ namespace ShareX.ScreenCaptureLib
 
         private Bitmap Magnifier(Image img, Point position, int horizontalPixelCount, int verticalPixelCount, int pixelSize)
         {
-            horizontalPixelCount = (horizontalPixelCount | 1).Between(1, 101);
-            verticalPixelCount = (verticalPixelCount | 1).Between(1, 101);
-            pixelSize = pixelSize.Between(1, 1000);
+            horizontalPixelCount = (horizontalPixelCount | 1).Clamp(1, 101);
+            verticalPixelCount = (verticalPixelCount | 1).Clamp(1, 101);
+            pixelSize = pixelSize.Clamp(1, 1000);
 
             if (horizontalPixelCount * pixelSize > ClientArea.Width || verticalPixelCount * pixelSize > ClientArea.Height)
             {
